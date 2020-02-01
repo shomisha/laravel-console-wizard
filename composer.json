@@ -1,0 +1,41 @@
+{
+    "name": "shomisha/laravel-console-wizard",
+    "description": "This package offers a framework for creating interactive console wizards within your Laravel applications.",
+    "keywords": [
+        "laravel",
+        "console",
+        "wizard"
+    ],
+    "homepage": "https://github.com/shomisha/laravel-console-wizard",
+    "type": "library",
+    "license": "MIT",
+    "support": {
+        "email": "misa95kovic@gmail.com"
+    },
+    "authors": [
+        {
+            "name": "Miša Ković",
+            "email": "misa95kovic@gmail.com",
+            "homepage": "https://github.com/shomisha",
+            "role": "Author"
+        }
+    ],
+    "require": {
+        "laravel/framework": "~6.0",
+        "php": "~7.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "~4.0",
+        "phpunit/phpunit": "^8.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shomisha\\LaravelConsoleWizard\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Shomisha\\LaravelConsoleWizard\\Test\\": "tests"
+        }
+    }
+}
