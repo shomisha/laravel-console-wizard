@@ -12,12 +12,12 @@ abstract class Wizard extends Command
     /**
      * @var \Illuminate\Support\Collection
      */
-    private $questions;
+    protected $questions;
 
     /**
      * @var \Illuminate\Support\Collection
      */
-    private $asked;
+    protected $asked;
 
     /**
      * @var \Illuminate\Support\Collection
@@ -47,7 +47,7 @@ abstract class Wizard extends Command
         do {
             $name = $this->questions->keys()->first();
             /** @var \Shomisha\LaravelConsoleWizard\Contracts\Question $question */
-            $question = $this->questions->shift();
+            $question = $this->questions->first();
 
             $this->asking($question, $name);
 
