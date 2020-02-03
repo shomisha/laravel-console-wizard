@@ -3,9 +3,9 @@
 namespace Shomisha\LaravelConsoleWizard\Test\TestWizards;
 
 use Shomisha\LaravelConsoleWizard\Command\Wizard;
+use Shomisha\LaravelConsoleWizard\Contracts\Question;
 use Shomisha\LaravelConsoleWizard\Questions\ChoiceQuestion;
 use Shomisha\LaravelConsoleWizard\Questions\TextQuestion;
-use Shomisha\LaravelConsoleWizard\Questions\UniqueMultipleChoiceQuestion;
 
 class BaseTestWizard extends Wizard
 {
@@ -28,6 +28,25 @@ class BaseTestWizard extends Wizard
                 ]
             ),
         ];
+    }
+
+    public function askingName()
+    {
+    }
+
+    public function askingAge()
+    {
+
+    }
+
+    public function answeredAge(Question $question, $answer)
+    {
+        return $answer;
+    }
+
+    public function answeredPreferredLanguage(Question $question, $answer)
+    {
+        return $answer;
     }
 
     function completed()
