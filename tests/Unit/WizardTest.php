@@ -3,10 +3,12 @@
 namespace Shomisha\LaravelConsoleWizard\Test\Unit;
 
 use Illuminate\Support\Collection;
+use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 use Shomisha\LaravelConsoleWizard\Steps\ChoiceStep;
 use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
+use Shomisha\LaravelConsoleWizard\Test\TestWizards\InvalidStepsTestWizard;
 
 class WizardTest extends TestCase
 {
@@ -59,6 +61,26 @@ class WizardTest extends TestCase
         $this->assertInstanceOf(TextStep::class, $steps->get('name'));
         $this->assertInstanceOf(TextStep::class, $steps->get('age'));
         $this->assertInstanceOf(ChoiceStep::class, $steps->get('preferred-language'));
+    }
+
+    /** @test */
+    public function wizard_will_throw_an_exception_if_an_invalid_step_is_expected()
+    {
+        $this->expectException(InvalidStepException::class);
+
+        $this->loadWizard(InvalidStepsTestWizard::class);
+    }
+
+    /** @test */
+    public function wizard_will_perform_no_actions_prior_to_asserting_all_steps_are_valid()
+    {
+        $this->expectException(InvalidStepException::class);
+
+        $mock = \Mockery::mock(sprintf("%s[handle, take, completed]", InvalidStepsTestWizard::class));
+
+        $mock->shouldNotHaveReceived('handle');
+        $mock->shouldNotHaveReceived('take');
+        $mock->shouldNotHaveReceived('completed');
     }
 
     /** @test */
