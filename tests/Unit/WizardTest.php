@@ -9,6 +9,7 @@ use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\InvalidStepsTestWizard;
+use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
 
 class WizardTest extends TestCase
 {
@@ -107,6 +108,35 @@ class WizardTest extends TestCase
     public function wizard_will_ask_all_the_defined_questions()
     {
         $this->runBaseTestWizard();
+    }
+
+    /** @test */
+    public function wizard_will_ask_all_the_questions_from_a_subwizard()
+    {
+        $this->artisan('console-wizard-test:subwizard')
+             ->expectsQuestion("What's your name?", 'Misa')
+             ->expectsQuestion("Are you older than 18?", "Yes")
+             ->expectsQuestion("Your marital status:", 'single');
+    }
+
+    /** @test */
+    public function subwizard_answers_will_be_present_as_a_subset_of_main_wizard_answers()
+    {
+        $wizard = $this->loadWizard(SubwizardTestWizard::class);
+
+        $this->artisan('console-wizard-test:subwizard')
+             ->expectsQuestion("What's your name?", 'Misa')
+             ->expectsQuestion("Are you older than 18?", "Yes")
+             ->expectsQuestion("Your marital status:", 'single');
+
+        $answers = $this->answers->getValue($wizard);
+        $this->assertEquals([
+            'name' => 'Misa',
+            'legal-status' => [
+                'age-legality' => 'Yes',
+                'marital-legality' => 'single',
+            ],
+        ], $answers->toArray());
     }
 
     /** @test */
