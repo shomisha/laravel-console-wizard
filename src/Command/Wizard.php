@@ -101,7 +101,7 @@ abstract class Wizard extends Command
 
     private function guessTakingModifier(string $name)
     {
-        return sprintf('asking%s', Str::studly($name));
+        return sprintf('taking%s', Str::studly($name));
     }
 
     final private function answered(Step $step, string $name, $answer)
