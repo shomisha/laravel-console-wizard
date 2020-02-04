@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 use Shomisha\LaravelConsoleWizard\Contracts\Step;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 
-abstract class Wizard extends Command
+abstract class Wizard extends Command implements Step
 {
     /**
      * @var \Illuminate\Support\Collection
@@ -32,9 +32,6 @@ abstract class Wizard extends Command
     public function __construct()
     {
         parent::__construct();
-
-        $this->initializeSteps();
-        $this->initializeAnswers();
     }
 
     /**
@@ -43,6 +40,15 @@ abstract class Wizard extends Command
      * @return mixed
      */
     final public function handle()
+    {
+        $this->initializeWizard();
+
+        $this->take($this);
+
+        $this->completed();
+    }
+
+    public function take(Wizard $wizard)
     {
         do {
             $name = $this->steps->keys()->first();
@@ -56,7 +62,23 @@ abstract class Wizard extends Command
             $this->answered($step, $name, $answer);
         } while ($this->steps->isNotEmpty());
 
-        $this->completed();
+        return $this->answers->toArray();
+    }
+
+    public function initializeWizard()
+    {
+        $this->initializeSteps();
+        $this->initializeAnswers();
+    }
+
+    protected function subWizard(Wizard $wizard)
+    {
+        $wizard->output = $this->output;
+        $wizard->input = $this->input;
+
+        $wizard->initializeWizard();
+
+        return $wizard;
     }
 
     private function initializeSteps()
