@@ -1,8 +1,8 @@
 <?php
 
-namespace Shomisha\LaravelConsoleWizard\Questions;
+namespace Shomisha\LaravelConsoleWizard\Steps;
 
-abstract class BaseMultipleAnswerQuestion extends BaseQuestion
+abstract class BaseMultipleAnswerStep extends BaseStep
 {
     /** @var string */
     protected $endKeyword;

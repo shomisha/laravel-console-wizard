@@ -2,6 +2,6 @@
 
 namespace Shomisha\LaravelConsoleWizard\Exception;
 
-class InvalidQuestionException extends \Exception
+class InvalidStepException extends \Exception
 {
 }

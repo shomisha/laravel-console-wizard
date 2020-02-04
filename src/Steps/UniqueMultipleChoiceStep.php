@@ -1,10 +1,10 @@
 <?php
 
-namespace Shomisha\LaravelConsoleWizard\Questions;
+namespace Shomisha\LaravelConsoleWizard\Steps;
 
 use Shomisha\LaravelConsoleWizard\Command\Wizard;
 
-class UniqueMultipleChoiceQuestion extends BaseMultipleAnswerQuestion
+class UniqueMultipleChoiceStep extends BaseMultipleAnswerStep
 {
     /** @var array */
     private $choices;
@@ -16,7 +16,7 @@ class UniqueMultipleChoiceQuestion extends BaseMultipleAnswerQuestion
         $this->choices = $choices;
     }
 
-    final public function ask(Wizard $wizard)
+    final public function take(Wizard $wizard)
     {
         $answers = [];
         $options = array_merge($this->choices, [$this->endKeyword]);

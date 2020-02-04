@@ -1,12 +1,12 @@
 <?php
 
-namespace Shomisha\LaravelConsoleWizard\Questions;
+namespace Shomisha\LaravelConsoleWizard\Steps;
 
 use Shomisha\LaravelConsoleWizard\Command\Wizard;
 
-class MultipleAnswerTextQuestion extends BaseMultipleAnswerQuestion
+class MultipleAnswerTextStep extends BaseMultipleAnswerStep
 {
-    final public function ask(Wizard $wizard)
+    final public function take(Wizard $wizard)
     {
         $wizard->line($this->text);
         $answers = [];

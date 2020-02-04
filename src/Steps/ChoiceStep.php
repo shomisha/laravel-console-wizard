@@ -1,10 +1,10 @@
 <?php
 
-namespace Shomisha\LaravelConsoleWizard\Questions;
+namespace Shomisha\LaravelConsoleWizard\Steps;
 
 use Shomisha\LaravelConsoleWizard\Command\Wizard;
 
-class ChoiceQuestion extends BaseQuestion
+class ChoiceStep extends BaseStep
 {
     /** @var array */
     private $options;
@@ -16,7 +16,7 @@ class ChoiceQuestion extends BaseQuestion
         $this->options = $options;
     }
 
-    final public function ask(Wizard $wizard)
+    final public function take(Wizard $wizard)
     {
         return $wizard->choice($this->text, $this->options);
     }

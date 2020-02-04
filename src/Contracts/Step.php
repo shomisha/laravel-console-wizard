@@ -4,7 +4,7 @@ namespace Shomisha\LaravelConsoleWizard\Contracts;
 
 use Shomisha\LaravelConsoleWizard\Command\Wizard;
 
-interface Question
+interface Step
 {
-    public function ask(Wizard $wizard);
+    public function take(Wizard $wizard);
 }
