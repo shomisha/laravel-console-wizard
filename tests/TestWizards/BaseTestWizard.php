@@ -3,20 +3,20 @@
 namespace Shomisha\LaravelConsoleWizard\Test\TestWizards;
 
 use Shomisha\LaravelConsoleWizard\Command\Wizard;
-use Shomisha\LaravelConsoleWizard\Contracts\Question;
-use Shomisha\LaravelConsoleWizard\Questions\ChoiceQuestion;
-use Shomisha\LaravelConsoleWizard\Questions\TextQuestion;
+use Shomisha\LaravelConsoleWizard\Contracts\Step;
+use Shomisha\LaravelConsoleWizard\Steps\ChoiceStep;
+use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 
 class BaseTestWizard extends Wizard
 {
     protected $signature = 'console-wizard-test:base';
 
-    function getQuestions(): array
+    function getSteps(): array
     {
         return [
-            'name' => new TextQuestion("What's your name?"),
-            'age' => new TextQuestion("How old are you?"),
-            'preferred-language' => new ChoiceQuestion(
+            'name' => new TextStep("What's your name?"),
+            'age' => new TextStep("How old are you?"),
+            'preferred-language' => new ChoiceStep(
                 'Your favourite programming language',
                 [
                     'PHP',
@@ -30,21 +30,21 @@ class BaseTestWizard extends Wizard
         ];
     }
 
-    public function askingName()
+    public function takingName()
     {
     }
 
-    public function askingAge()
+    public function takingAge()
     {
 
     }
 
-    public function answeredAge(Question $question, $answer)
+    public function answeredAge(Step $question, $answer)
     {
         return $answer;
     }
 
-    public function answeredPreferredLanguage(Question $question, $answer)
+    public function answeredPreferredLanguage(Step $question, $answer)
     {
         return $answer;
     }

@@ -3,18 +3,18 @@
 namespace Shomisha\LaravelConsoleWizard\Test\Unit;
 
 use Illuminate\Support\Collection;
-use Shomisha\LaravelConsoleWizard\Questions\ChoiceQuestion;
-use Shomisha\LaravelConsoleWizard\Questions\TextQuestion;
+use Shomisha\LaravelConsoleWizard\Steps\ChoiceStep;
+use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
 
 class WizardTest extends TestCase
 {
     /** @var \ReflectionProperty */
-    protected $questions;
+    protected $steps;
 
     /** @var \ReflectionProperty */
-    protected $asked;
+    protected $taken;
 
     /** @var \ReflectionProperty */
     protected $answers;
@@ -25,10 +25,10 @@ class WizardTest extends TestCase
      */
     protected function loadWizard(string $wizardClass)
     {
-        $this->questions = tap(new \ReflectionProperty($wizardClass, 'questions'))
+        $this->steps = tap(new \ReflectionProperty($wizardClass, 'steps'))
              ->setAccessible(true);
 
-        $this->asked = tap(new \ReflectionProperty($wizardClass, 'asked'))
+        $this->taken = tap(new \ReflectionProperty($wizardClass, 'taken'))
              ->setAccessible(true);
 
         $this->answers = tap(new \ReflectionProperty($wizardClass, 'answers'))
@@ -54,21 +54,21 @@ class WizardTest extends TestCase
     public function wizard_will_initialize_questions_when_created()
     {
         $wizard = $this->loadWizard(BaseTestWizard::class);
-        $questions = $this->questions->getValue($wizard);
+        $steps = $this->steps->getValue($wizard);
 
-        $this->assertInstanceOf(TextQuestion::class, $questions->get('name'));
-        $this->assertInstanceOf(TextQuestion::class, $questions->get('age'));
-        $this->assertInstanceOf(ChoiceQuestion::class, $questions->get('preferred-language'));
+        $this->assertInstanceOf(TextStep::class, $steps->get('name'));
+        $this->assertInstanceOf(TextStep::class, $steps->get('age'));
+        $this->assertInstanceOf(ChoiceStep::class, $steps->get('preferred-language'));
     }
 
     /** @test */
     public function wizard_will_initialize_an_empty_collection_for_asked_questions()
     {
         $wizard = $this->loadWizard(BaseTestWizard::class);
-        $asked = $this->asked->getValue($wizard);
+        $taken = $this->taken->getValue($wizard);
 
-        $this->assertInstanceOf(Collection::class, $asked);
-        $this->assertEmpty($asked);
+        $this->assertInstanceOf(Collection::class, $taken);
+        $this->assertEmpty($taken);
     }
 
     /** @test */
@@ -88,11 +88,11 @@ class WizardTest extends TestCase
     }
 
     /** @test */
-    public function wizard_will_invoke_existing_asking_modifiers()
+    public function wizard_will_invoke_existing_taking_modifiers()
     {
-        $mock = \Mockery::mock(sprintf('%s[askingName, askingAge]', BaseTestWizard::class));
-        $mock->shouldReceive('askingName')->once();
-        $mock->shouldReceive('askingAge')->once();
+        $mock = \Mockery::mock(sprintf('%s[takingName, takingAge]', BaseTestWizard::class));
+        $mock->shouldReceive('takingName')->once();
+        $mock->shouldReceive('takingAge')->once();
 
         $this->instance(BaseTestWizard::class, $mock);
 
@@ -100,10 +100,10 @@ class WizardTest extends TestCase
     }
 
     /** @test */
-    public function wizard_will_not_invoke_non_existing_asking_modifiers()
+    public function wizard_will_not_invoke_non_existing_taking_modifiers()
     {
-        $mock = \Mockery::mock(sprintf('%s[askingPreferredLanguage]', BaseTestWizard::class));
-        $mock->shouldNotReceive('askingPreferredLanguage');
+        $mock = \Mockery::mock(sprintf('%s[takingPreferredLanguage]', BaseTestWizard::class));
+        $mock->shouldNotReceive('takingPreferredLanguage');
 
         $this->instance(BaseTestWizard::class, $mock);
 
@@ -175,12 +175,12 @@ class WizardTest extends TestCase
 
         $this->runBaseTestWizard();
 
-        $asked = $this->asked->getValue($wizard);
-        $questions = $this->questions->getValue($wizard);
+        $asked = $this->taken->getValue($wizard);
+        $questions = $this->steps->getValue($wizard);
 
-        $this->assertInstanceOf(TextQuestion::class, $asked->get('name'));
-        $this->assertInstanceOf(TextQuestion::class, $asked->get('age'));
-        $this->assertInstanceOf(ChoiceQuestion::class, $asked->get('preferred-language'));
+        $this->assertInstanceOf(TextStep::class, $asked->get('name'));
+        $this->assertInstanceOf(TextStep::class, $asked->get('age'));
+        $this->assertInstanceOf(ChoiceStep::class, $asked->get('preferred-language'));
 
         $this->assertInstanceOf(Collection::class, $questions);
         $this->assertEmpty($questions);

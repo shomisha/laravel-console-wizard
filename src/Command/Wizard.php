@@ -4,20 +4,20 @@ namespace Shomisha\LaravelConsoleWizard\Command;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use Shomisha\LaravelConsoleWizard\Contracts\Question;
-use Shomisha\LaravelConsoleWizard\Exception\InvalidQuestionException;
+use Shomisha\LaravelConsoleWizard\Contracts\Step;
+use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 
 abstract class Wizard extends Command
 {
     /**
      * @var \Illuminate\Support\Collection
      */
-    protected $questions;
+    protected $steps;
 
     /**
      * @var \Illuminate\Support\Collection
      */
-    protected $asked;
+    protected $taken;
 
     /**
      * @var \Illuminate\Support\Collection
@@ -33,7 +33,7 @@ abstract class Wizard extends Command
     {
         parent::__construct();
 
-        $this->initializeQuestions();
+        $this->initializeSteps();
         $this->initializeAnswers();
     }
 
@@ -45,27 +45,27 @@ abstract class Wizard extends Command
     final public function handle()
     {
         do {
-            $name = $this->questions->keys()->first();
-            /** @var \Shomisha\LaravelConsoleWizard\Contracts\Question $question */
-            $question = $this->questions->first();
+            $name = $this->steps->keys()->first();
+            /** @var \Shomisha\LaravelConsoleWizard\Contracts\Step $step */
+            $step = $this->steps->first();
 
-            $this->asking($question, $name);
+            $this->taking($step, $name);
 
-            $answer = $question->ask($this);
+            $answer = $step->take($this);
 
-            $this->answered($question, $name, $answer);
-        } while ($this->questions->isNotEmpty());
+            $this->answered($step, $name, $answer);
+        } while ($this->steps->isNotEmpty());
 
         $this->completed();
     }
 
-    private function initializeQuestions()
+    private function initializeSteps()
     {
-        $this->assertQuestionsAreValid($questions = $this->getQuestions());
+        $this->assertStepsAreValid($steps = $this->getSteps());
 
-        $this->questions = collect($questions);
+        $this->steps = collect($steps);
 
-        $this->asked = collect([]);
+        $this->taken = collect([]);
     }
 
     private function initializeAnswers()
@@ -73,41 +73,41 @@ abstract class Wizard extends Command
         $this->answers = collect([]);
     }
 
-    private function assertQuestionsAreValid(array $questions)
+    private function assertStepsAreValid(array $steps)
     {
-        foreach ($questions as $question) {
-            if (! ($question instanceof Question)) {
-                throw new InvalidQuestionException($question);
+        foreach ($steps as $step) {
+            if (! ($step instanceof Step)) {
+                throw new InvalidStepException($step);
             }
         }
     }
 
-    private function asking(Question $question, string $name)
+    private function taking(Step $step, string $name)
     {
-        if ($this->hasAskingModifier($name)) {
-            $this->{$this->guessAskingModifier($name)}($question);
+        if ($this->hasTakingModifier($name)) {
+            $this->{$this->guessTakingModifier($name)}($step);
         }
     }
 
-    private function hasAskingModifier(string $name)
+    private function hasTakingModifier(string $name)
     {
-        return method_exists($this, $this->guessAskingModifier($name));
+        return method_exists($this, $this->guessTakingModifier($name));
     }
 
-    private function guessAskingModifier(string $name)
+    private function guessTakingModifier(string $name)
     {
         return sprintf('asking%s', Str::studly($name));
     }
 
-    final private function answered(Question $question, string $name, $answer)
+    final private function answered(Step $step, string $name, $answer)
     {
         if ($this->hasAnsweredModifier($name)) {
-            $answer = $this->{$this->guessAnsweredModifier($name)}($question, $answer);
+            $answer = $this->{$this->guessAnsweredModifier($name)}($step, $answer);
         }
 
         $this->addAnswer($name, $answer);
 
-        $this->moveQuestionToAsked($name);
+        $this->moveStepToTaken($name);
     }
 
     private function hasAnsweredModifier(string $name)
@@ -130,16 +130,16 @@ abstract class Wizard extends Command
         return $this->answers->get($name);
     }
 
-    private function moveQuestionToAsked(string $name)
+    private function moveStepToTaken(string $name)
     {
-        $question = $this->questions->pull($name);
+        $step = $this->steps->pull($name);
 
-        if ($question) {
-            $this->asked->put($name, $question);
+        if ($step) {
+            $this->taken->put($name, $step);
         }
     }
 
-    abstract function getQuestions(): array;
+    abstract function getSteps(): array;
 
     abstract function completed();
 }
