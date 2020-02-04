@@ -77,7 +77,12 @@ abstract class Wizard extends Command
     {
         foreach ($steps as $step) {
             if (! ($step instanceof Step)) {
-                throw new InvalidStepException($step);
+                $message = sprintf(
+                    "%s does not implement the %s interface",
+                    get_class($step),
+                    Step::class
+                );
+                throw new InvalidStepException($message);
             }
         }
     }
