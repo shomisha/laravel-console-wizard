@@ -9,7 +9,7 @@ class MultipleChoiceStep extends BaseMultipleAnswerStep
     /** @var array */
     private $choices;
 
-    public function __construct(string $text, array $choices, array $options)
+    public function __construct(string $text, array $choices, array $options = [])
     {
         parent::__construct($text, $options);
 
