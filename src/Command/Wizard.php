@@ -48,7 +48,7 @@ abstract class Wizard extends Command implements Step
         $this->completed();
     }
 
-    public function take(Wizard $wizard)
+    final public function take(Wizard $wizard)
     {
         do {
             $name = $this->steps->keys()->first();
@@ -65,13 +65,13 @@ abstract class Wizard extends Command implements Step
         return $this->answers->toArray();
     }
 
-    public function initializeWizard()
+    final public function initializeWizard()
     {
         $this->initializeSteps();
         $this->initializeAnswers();
     }
 
-    protected function subWizard(Wizard $wizard)
+    final protected function subWizard(Wizard $wizard)
     {
         $wizard->output = $this->output;
         $wizard->input = $this->input;
@@ -126,7 +126,7 @@ abstract class Wizard extends Command implements Step
         return sprintf('taking%s', Str::studly($name));
     }
 
-    final private function answered(Step $step, string $name, $answer)
+    private function answered(Step $step, string $name, $answer)
     {
         if ($this->hasAnsweredModifier($name)) {
             $answer = $this->{$this->guessAnsweredModifier($name)}($step, $answer);
