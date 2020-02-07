@@ -20,6 +20,9 @@ class WizardTest extends TestCase
     protected $taken;
 
     /** @var \ReflectionProperty */
+    protected $followup;
+
+    /** @var \ReflectionProperty */
     protected $answers;
 
     /**
@@ -37,6 +40,9 @@ class WizardTest extends TestCase
         $this->answers = tap(new \ReflectionProperty($wizardClass, 'answers'))
              ->setAccessible(true);
 
+        $this->followup = tap(new \ReflectionProperty($wizardClass, 'followup'))
+             ->setAccessible(true);
+
         $wizard = $this->app->get($wizardClass);
 
         $wizard->initializeWizard();
@@ -44,6 +50,19 @@ class WizardTest extends TestCase
         $this->app->instance($wizardClass, $wizard);
 
         return $wizard;
+    }
+
+    protected function partiallyMockWizard(string $class, array $methods)
+    {
+        $mock = \Mockery::mock(sprintf(
+            '%s[%s]',
+            $class,
+            implode(',', $methods)
+        ));
+
+        $this->instance($class, $mock);
+
+        return $mock;
     }
 
     protected function runBaseTestWizard()
@@ -105,6 +124,16 @@ class WizardTest extends TestCase
 
         $this->assertInstanceOf(Collection::class, $answers);
         $this->assertEmpty($answers);
+    }
+
+    /** @test */
+    public function wizard_will_initialize_an_empty_collection_for_followups()
+    {
+        $wizard = $this->loadWizard(BaseTestWizard::class);
+        $followup = $this->followup->getValue($wizard);
+
+        $this->assertInstanceOf(Collection::class, $followup);
+        $this->assertEmpty($followup);
     }
 
     /** @test */
@@ -206,6 +235,37 @@ class WizardTest extends TestCase
         $this->instance(BaseTestWizard::class, $mock);
 
         $this->runBaseTestWizard();
+    }
+
+    /** @test */
+    public function wizard_can_followup_on_steps()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'run-another' => new TextStep('Should I followup on this step?'),
+            'i-ran-another' => new TextStep('Is it OK I ran another step?'),
+        ]);
+
+        $this->artisan('console-wizard-test:base')
+             ->expectsQuestion('Should I followup on this step?', 'Yes')
+             ->expectsQuestion("I am a followup.", 'Cool')
+             ->expectsQuestion('Is it OK I ran another step?', 'Totally');
+    }
+
+    /** @test */
+    public function followups_will_be_asked_from_the_latest_to_the_earliest()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'main-step' => new TextStep("I am the main step"),
+        ]);
+
+        $this->artisan('console-wizard-test:base')
+             ->expectsQuestion('I am the main step', 'Cool')
+             ->expectsQuestion('I am added after the main step', 'Yes, you are')
+             ->expectsQuestion('I am added before the main step', 'Good for you');
     }
 
     /** @test */
