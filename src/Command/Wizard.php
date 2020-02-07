@@ -24,6 +24,9 @@ abstract class Wizard extends Command implements Step
      */
     protected $answers;
 
+    /** @var \Illuminate\Support\Collection */
+    protected $followup;
+
     /**
      * Create a new command instance.
      *
@@ -81,6 +84,13 @@ abstract class Wizard extends Command implements Step
         return $wizard;
     }
 
+    final protected function followUp(string $name, Step $step)
+    {
+        $this->followup->put($name, $step);
+
+        return $this;
+    }
+
     private function initializeSteps()
     {
         $this->assertStepsAreValid($steps = $this->getSteps());
@@ -88,6 +98,7 @@ abstract class Wizard extends Command implements Step
         $this->steps = collect($steps);
 
         $this->taken = collect([]);
+        $this->followup = collect([]);
     }
 
     private function initializeAnswers()
@@ -135,6 +146,8 @@ abstract class Wizard extends Command implements Step
         $this->addAnswer($name, $answer);
 
         $this->moveStepToTaken($name, $step);
+
+        $this->flushFollowups();
     }
 
     private function hasAnsweredModifier(string $name)
@@ -160,7 +173,15 @@ abstract class Wizard extends Command implements Step
     private function moveStepToTaken(string $name, Step $step)
     {
         $this->taken->put($name, $step);
+    }
 
+    private function flushFollowups()
+    {
+        $this->steps = collect(array_merge(
+            $this->followup->reverse()->toArray(), $this->steps->toArray()
+        ));
+
+        $this->followup = collect([]);
     }
 
     abstract function getSteps(): array;
