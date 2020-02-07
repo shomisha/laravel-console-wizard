@@ -56,7 +56,7 @@ class WizardTest extends TestCase
     }
 
     /** @test */
-    public function wizard_will_initialize_questions_when_created()
+    public function wizard_will_initialize_steps_when_created()
     {
         $wizard = $this->loadWizard(BaseTestWizard::class);
         $steps = $this->steps->getValue($wizard);
@@ -88,7 +88,7 @@ class WizardTest extends TestCase
     }
 
     /** @test */
-    public function wizard_will_initialize_an_empty_collection_for_asked_questions()
+    public function wizard_will_initialize_an_empty_collection_for_taken_steps()
     {
         $wizard = $this->loadWizard(BaseTestWizard::class);
         $taken = $this->taken->getValue($wizard);
@@ -108,13 +108,13 @@ class WizardTest extends TestCase
     }
 
     /** @test */
-    public function wizard_will_ask_all_the_defined_questions()
+    public function wizard_will_ask_all_the_defined_steps()
     {
         $this->runBaseTestWizard();
     }
 
     /** @test */
-    public function wizard_will_ask_all_the_questions_from_a_subwizard()
+    public function wizard_will_ask_all_the_steps_from_a_subwizard()
     {
         $this->artisan('console-wizard-test:subwizard')
              ->expectsQuestion("What's your name?", 'Misa')
@@ -224,7 +224,7 @@ class WizardTest extends TestCase
     }
 
     /** @test */
-    public function wizard_will_move_asked_questions_to_the_asked_collection()
+    public function wizard_will_move_taken_steps_to_the_taken_collection()
     {
         $wizard = $this->loadWizard(BaseTestWizard::class);
 
