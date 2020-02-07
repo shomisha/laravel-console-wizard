@@ -30,6 +30,21 @@ class BaseTestWizard extends Wizard
         ];
     }
 
+    public function takingRunAnother()
+    {
+        $this->followup('followup', new TextStep("I am a followup."));
+    }
+
+    public function takingMainStep()
+    {
+        $this->followup('pre-main-step', new TextStep('I am added before the main step'));
+    }
+
+    public function answeredMainStep()
+    {
+        $this->followup('post-main-step', new TextStep('I am added after the main step'));
+    }
+
     public function takingName()
     {
     }
