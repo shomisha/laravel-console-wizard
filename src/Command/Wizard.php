@@ -27,6 +27,9 @@ abstract class Wizard extends Command implements Step
     /** @var \Illuminate\Support\Collection */
     protected $followup;
 
+    /** @var \Illuminate\Support\Collection */
+    protected $skipped;
+
     /**
      * Create a new command instance.
      *
@@ -91,6 +94,15 @@ abstract class Wizard extends Command implements Step
         return $this;
     }
 
+    final protected function skip(string $name)
+    {
+        $step = $this->steps->pull($name);
+
+        if ($step !== null) {
+            $this->skipped->put($name, $step);
+        }
+    }
+
     private function initializeSteps()
     {
         $this->assertStepsAreValid($steps = $this->getSteps());
@@ -99,6 +111,7 @@ abstract class Wizard extends Command implements Step
 
         $this->taken = collect([]);
         $this->followup = collect([]);
+        $this->skipped = collect([]);
     }
 
     private function initializeAnswers()
