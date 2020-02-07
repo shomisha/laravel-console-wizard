@@ -39,6 +39,8 @@ class WizardTest extends TestCase
 
         $wizard = $this->app->get($wizardClass);
 
+        $wizard->initializeWizard();
+
         $this->app->instance($wizardClass, $wizard);
 
         return $wizard;
@@ -77,9 +79,10 @@ class WizardTest extends TestCase
     {
         $this->expectException(InvalidStepException::class);
 
-        $mock = \Mockery::mock(sprintf("%s[handle, take, completed]", InvalidStepsTestWizard::class));
+        $mock = \Mockery::mock(sprintf("%s[take, completed]", InvalidStepsTestWizard::class));
 
-        $mock->shouldNotHaveReceived('handle');
+        $this->artisan('console-wizard-test:invalid-steps');
+
         $mock->shouldNotHaveReceived('take');
         $mock->shouldNotHaveReceived('completed');
     }
