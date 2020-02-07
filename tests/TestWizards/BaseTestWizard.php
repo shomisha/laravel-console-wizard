@@ -30,6 +30,16 @@ class BaseTestWizard extends Wizard
         ];
     }
 
+    public function askingUnskippable()
+    {
+        $this->skip('unskippable');
+    }
+
+    public function answeredUnskippable()
+    {
+        $this->skip('skip-me');
+    }
+
     public function takingRunAnother()
     {
         $this->followup('followup', new TextStep("I am a followup."));
