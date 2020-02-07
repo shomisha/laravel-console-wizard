@@ -174,11 +174,9 @@ class WizardTest extends TestCase
     /** @test */
     public function wizard_will_invoke_existing_taking_modifiers()
     {
-        $mock = \Mockery::mock(sprintf('%s[takingName, takingAge]', BaseTestWizard::class));
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['takingName', 'takingAge']);
         $mock->shouldReceive('takingName')->once();
         $mock->shouldReceive('takingAge')->once();
-
-        $this->instance(BaseTestWizard::class, $mock);
 
         $this->runBaseTestWizard();
     }
@@ -186,10 +184,8 @@ class WizardTest extends TestCase
     /** @test */
     public function wizard_will_not_invoke_non_existing_taking_modifiers()
     {
-        $mock = \Mockery::mock(sprintf('%s[takingPreferredLanguage]', BaseTestWizard::class));
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['takingPreferredLanguage']);
         $mock->shouldNotReceive('takingPreferredLanguage');
-
-        $this->instance(BaseTestWizard::class, $mock);
 
         $this->runBaseTestWizard();
     }
@@ -197,11 +193,9 @@ class WizardTest extends TestCase
     /** @test */
     public function wizard_will_invoke_existing_answered_modifiers()
     {
-        $mock = \Mockery::mock(sprintf('%s[answeredAge, answeredPreferredLanguage]', BaseTestWizard::class));
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['answeredAge', 'answeredPreferredLanguage']);
         $mock->shouldReceive('answeredAge')->once();
         $mock->shouldReceive('answeredPreferredLanguage')->once();
-
-        $this->instance(BaseTestWizard::class, $mock);
 
         $this->runBaseTestWizard();
     }
@@ -209,11 +203,9 @@ class WizardTest extends TestCase
     /** @test */
     public function answered_modifier_results_will_be_saved_as_answers()
     {
-        $mock = \Mockery::mock(sprintf('%s[answeredAge, answeredPreferredLanguage]', BaseTestWizard::class));
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['answeredAge', 'answeredPreferredLanguage']);
         $mock->shouldReceive('answeredAge')->once()->andReturn('modified age');
         $mock->shouldReceive('answeredPreferredLanguage')->once()->andReturn('modified programming language');
-
-        $this->instance(BaseTestWizard::class, $mock);
 
 
         $this->runBaseTestWizard();
@@ -229,10 +221,8 @@ class WizardTest extends TestCase
     /** @test */
     public function wizard_will_not_invoke_non_existing_answered_modifiers()
     {
-        $mock = \Mockery::mock(sprintf('%s[answeredName]', BaseTestWizard::class));
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['answeredName']);
         $mock->shouldNotReceive('answeredName');
-
-        $this->instance(BaseTestWizard::class, $mock);
 
         $this->runBaseTestWizard();
     }
@@ -304,10 +294,8 @@ class WizardTest extends TestCase
     /** @test */
     public function wizard_will_invoke_completed_upon_completion()
     {
-        $mock = \Mockery::mock(sprintf('%s[completed]', BaseTestWizard::class));
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['completed']);
         $mock->shouldNotReceive('completed')->once();
-
-        $this->instance(BaseTestWizard::class, $mock);
 
         $this->runBaseTestWizard();
     }
