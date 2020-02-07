@@ -8,7 +8,6 @@ use Shomisha\LaravelConsoleWizard\Steps\ChoiceStep;
 use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
-use Shomisha\LaravelConsoleWizard\Test\TestWizards\InvalidStepsTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
 
 class WizardTest extends TestCase
@@ -88,9 +87,15 @@ class WizardTest extends TestCase
     /** @test */
     public function wizard_will_throw_an_exception_if_an_invalid_step_is_expected()
     {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            new TextStep("What's your name?"),
+            new InvalidStepException(),
+        ]);
+
         $this->expectException(InvalidStepException::class);
 
-        $this->loadWizard(InvalidStepsTestWizard::class);
+        $this->artisan('console-wizard-test:base');
     }
 
     /** @test */
@@ -98,12 +103,17 @@ class WizardTest extends TestCase
     {
         $this->expectException(InvalidStepException::class);
 
-        $mock = \Mockery::mock(sprintf("%s[take, completed]", InvalidStepsTestWizard::class));
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps', 'take', 'completed']);
 
-        $this->artisan('console-wizard-test:invalid-steps');
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            new TextStep("What's your name?"),
+            new InvalidStepException(),
+        ]);
 
-        $mock->shouldNotHaveReceived('take');
-        $mock->shouldNotHaveReceived('completed');
+        $mock->shouldNotReceive('take');
+        $mock->shouldNotReceive('completed');
+
+        $this->artisan('console-wizard-test:base');
     }
 
     /** @test */

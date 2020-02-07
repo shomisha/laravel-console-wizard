@@ -4,7 +4,6 @@ namespace Shomisha\LaravelConsoleWizard\Test;
 
 use Illuminate\Support\ServiceProvider;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
-use Shomisha\LaravelConsoleWizard\Test\TestWizards\InvalidStepsTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
 
 class LaravelConsoleWizardTestsServiceProvider extends ServiceProvider
@@ -19,7 +18,6 @@ class LaravelConsoleWizardTestsServiceProvider extends ServiceProvider
         $this->commands(
             BaseTestWizard::class,
             SubwizardTestWizard::class,
-            InvalidStepsTestWizard::class
         );
     }
 }
