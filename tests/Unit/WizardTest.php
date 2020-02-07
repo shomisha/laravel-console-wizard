@@ -269,6 +269,35 @@ class WizardTest extends TestCase
     }
 
     /** @test */
+    public function wizard_can_skip_steps()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'unskippable' => new TextStep("I shouldn't be skipped"),
+            'skip-me'     => new TextStep("I am to be skipped"),
+            'i-will-run'  => new TextStep("Running"),
+        ]);
+
+        $this->artisan('console-wizard-test:base')
+             ->expectsQuestion("I shouldn't be skipped", "That's right")
+             ->expectsQuestion('Running', 'good for you');
+    }
+
+    /** @test */
+    public function wizard_cannot_skip_a_step_that_is_already_running()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'i-will-run'  => new TextStep('Running'),
+            'unskippable' => new TextStep("I'm running too"),
+        ]);
+
+        $this->artisan('console-wizard-test:base')
+             ->expectsQuestion('Running', 'Good for you')
+             ->expectsQuestion("I'm running too", 'Yes you are');
+    }
+
+    /** @test */
     public function wizard_will_store_all_the_answers()
     {
         $wizard = $this->loadWizard(BaseTestWizard::class);
