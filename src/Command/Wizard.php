@@ -53,7 +53,7 @@ abstract class Wizard extends Command implements Step
         do {
             $name = $this->steps->keys()->first();
             /** @var \Shomisha\LaravelConsoleWizard\Contracts\Step $step */
-            $step = $this->steps->first();
+            $step = $this->steps->shift();
 
             $this->taking($step, $name);
 
@@ -134,7 +134,7 @@ abstract class Wizard extends Command implements Step
 
         $this->addAnswer($name, $answer);
 
-        $this->moveStepToTaken($name);
+        $this->moveStepToTaken($name, $step);
     }
 
     private function hasAnsweredModifier(string $name)
@@ -157,13 +157,10 @@ abstract class Wizard extends Command implements Step
         return $this->answers->get($name);
     }
 
-    private function moveStepToTaken(string $name)
+    private function moveStepToTaken(string $name, Step $step)
     {
-        $step = $this->steps->pull($name);
+        $this->taken->put($name, $step);
 
-        if ($step) {
-            $this->taken->put($name, $step);
-        }
     }
 
     abstract function getSteps(): array;
