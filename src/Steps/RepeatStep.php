@@ -39,6 +39,10 @@ class RepeatStep implements Step
             $answers[] = $answer;
 
             $this->counter++;
+
+            if ($this->shouldRefillStep()) {
+                $this->refillStep();
+            }
         }
 
         return $answers;
@@ -63,5 +67,15 @@ class RepeatStep implements Step
         $this->callback = $callback;
 
         return $this;
+    }
+
+    private function shouldRefillStep()
+    {
+        return $this->step instanceof Wizard;
+    }
+
+    private function refillStep()
+    {
+        return $this->step->refill();
     }
 }

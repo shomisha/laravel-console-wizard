@@ -203,6 +203,11 @@ abstract class Wizard extends Command implements Step
         $this->followup = collect([]);
     }
 
+    public function refill()
+    {
+        $this->initializeWizard();
+    }
+
     abstract function getSteps(): array;
 
     abstract function completed();
