@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use Shomisha\LaravelConsoleWizard\Contracts\Step;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
+use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 
 abstract class Wizard extends Command implements Step
 {
@@ -85,6 +86,11 @@ abstract class Wizard extends Command implements Step
         $wizard->initializeWizard();
 
         return $wizard;
+    }
+
+    final protected function repeat(Step $step)
+    {
+        return new RepeatStep($step);
     }
 
     final protected function followUp(string $name, Step $step)
