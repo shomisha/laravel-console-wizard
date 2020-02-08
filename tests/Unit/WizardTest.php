@@ -5,6 +5,7 @@ namespace Shomisha\LaravelConsoleWizard\Test\Unit;
 use Illuminate\Support\Collection;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 use Shomisha\LaravelConsoleWizard\Steps\ChoiceStep;
+use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
@@ -295,6 +296,127 @@ class WizardTest extends TestCase
         $this->artisan('console-wizard-test:base')
              ->expectsQuestion('Running', 'Good for you')
              ->expectsQuestion("I'm running too", 'Yes you are');
+    }
+
+    /** @test */
+    public function wizard_can_repeat_a_step_a_fixed_number_of_times()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'repeated' => tap(new RepeatStep(new TextStep("I will run three times")))->times(3),
+        ]);
+
+        $this->artisan('console-wizard-test:base')
+             ->expectsQuestion('I will run three times', "Yes you will")
+             ->expectsQuestion('I will run three times', "That's right")
+             ->expectsQuestion('I will run three times', "Okay, we get it");
+    }
+
+    /** @test */
+    public function wizard_can_repeat_a_step_until_a_specified_answer_is_provided()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            tap(new RepeatStep(new TextStep("Gimme 5 or I shall never stop")))->untilAnswerIs(5),
+        ]);
+
+        $this->artisan('console-wizard-test:base')
+             ->expectsQuestion("Gimme 5 or I shall never stop", 3)
+             ->expectsQuestion("Gimme 5 or I shall never stop", 2)
+             ->expectsQuestion("Gimme 5 or I shall never stop", 7)
+             ->expectsQuestion("Gimme 5 or I shall never stop", "You can't have 5")
+             ->expectsQuestion("Gimme 5 or I shall never stop", 5);
+    }
+
+    public function callbackRepetitionTests()
+    {
+        return [
+            [
+                function($answer) {
+                    return $answer !== 'stop';
+                }, ['go on', 'keep running', 'continue', 'stop'],
+            ],
+            [
+                function($answer) {
+                    if ($answer === null) {
+                        return true;
+                    }
+
+                    return $answer < 20;
+                }, [1, 7, 4, 12, 19, 55],
+            ],
+            [
+                function($answer) {
+                    if ($answer === null) {
+                        return true;
+                    }
+
+                    return is_string($answer);
+                }, ['go on', 'keep it up', 'this is the last time', false],
+            ]
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider callbackRepetitionTests
+     */
+    public function wizard_can_repeat_a_step_until_a_specific_condition_is_met(callable $callback, array $promptAnswers)
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'repeated' => tap(new RepeatStep(new TextStep("Repeat me")))->until($callback),
+        ]);
+
+        $consoleExpectation = $this->artisan('console-wizard-test:base');
+
+        foreach ($promptAnswers as $answer) {
+            $consoleExpectation->expectsQuestion("Repeat me", $answer);
+        }
+    }
+
+    /** @test */
+    public function repeated_step_answers_will_be_returned_as_an_array()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'text-step' => new TextStep("My answer will be a string"),
+            'repeated'  => tap(new RepeatStep(new TextStep("My answer will be an array with 3 elements")))->times(3),
+        ]);
+
+        $this->artisan('console-wizard-test:base')
+             ->expectsQuestion("My answer will be a string", "Yes it will")
+             ->expectsQuestion("My answer will be an array with 3 elements", "True that")
+             ->expectsQuestion("My answer will be an array with 3 elements", "Here's the second element")
+             ->expectsQuestion("My answer will be an array with 3 elements", "And I'm the third");
+
+        $answers = tap(new \ReflectionProperty(get_class($mock), 'answers'))->setAccessible(true)->getValue($mock);
+        $this->assertEquals([
+            'text-step' => 'Yes it will',
+            'repeated' => [
+                'True that',
+                "Here's the second element",
+                "And I'm the third",
+            ]
+        ], $answers->toArray());
+    }
+
+    /** @test */
+    public function wizard_will_throw_an_exception_if_a_repeated_question_is_not_properly_initialized()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'repeated' => new RepeatStep(new TextStep("I'll never be ran")),
+        ]);
+
+        $this->expectException(InvalidStepException::class);
+
+        $this->artisan('console-wizard-test:base');
     }
 
     /** @test */
