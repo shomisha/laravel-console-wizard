@@ -51,22 +51,37 @@ class RepeatStep implements Step
     public function times(int $times)
     {
         return $this->until(function () use ($times) {
-            return $this->counter < $times;
+            return $this->counter == $times;
         });
     }
 
-    public function untilAnswerIs($answer)
+    public function untilAnswerIs($answer, int $maxRepetitions = null)
     {
         return $this->until(function ($actualAnswer) use ($answer) {
-            return $actualAnswer !== $answer;
-        });
+            return $actualAnswer === $answer;
+        }, $maxRepetitions);
     }
 
-    public function until(callable $callback)
+    public function until(callable $callback, int $maxRepetitions = null)
     {
-        $this->callback = $callback;
+        $this->callback = function ($answer) use ($callback, $maxRepetitions) {
+            if ($callback($answer)) {
+                return false;
+            }
+
+            if ($this->hasExceededMaxRepetitions($maxRepetitions)) {
+                return false;
+            }
+
+            return true;
+        };
 
         return $this;
+    }
+
+    private function hasExceededMaxRepetitions($maxRepetitions)
+    {
+        return $maxRepetitions !== null && $this->counter >= $maxRepetitions;
     }
 
     private function shouldRefillStep()
