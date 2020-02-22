@@ -9,15 +9,12 @@ class MultipleAnswerTextStep extends BaseMultipleAnswerStep
     final public function take(Wizard $wizard)
     {
         $wizard->line($this->text);
-        $answers = [];
 
-        do {
-            $newAnswer = readline();
+        $answers = $this->loop(function () use ($wizard) {
+            return readline();
+        });
 
-            $answers[] = $newAnswer;
-        } while (strtolower($newAnswer) !== strtolower($this->endKeyword));
-
-        if (!$this->retainEndKeywordInAnswers) {
+        if ($this->shouldRemoveEndKeyword($answers)) {
             array_pop($answers);
         }
 

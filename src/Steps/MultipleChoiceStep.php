@@ -18,16 +18,12 @@ class MultipleChoiceStep extends BaseMultipleAnswerStep
 
     final public function take(Wizard $wizard)
     {
-        $answers = [];
         $options = array_merge($this->choices, [$this->endKeyword]);
+        $answers = $this->loop(function () use ($wizard, $options) {
+            return $wizard->choice($this->text, $options);
+        });
 
-        do {
-            $newAnswer = $wizard->choice($this->text, $options);
-
-            $answers[] = $newAnswer;
-        } while ($newAnswer !== $this->endKeyword);
-
-        if (!$this->retainEndKeywordInAnswers) {
+        if ($this->shouldRemoveEndKeyword($answers)) {
             array_pop($answers);
         }
 

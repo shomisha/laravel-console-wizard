@@ -18,18 +18,16 @@ class UniqueMultipleChoiceStep extends BaseMultipleAnswerStep
 
     final public function take(Wizard $wizard)
     {
-        $answers = [];
         $options = array_merge($this->choices, [$this->endKeyword]);
-
-        do {
+        $answers = $this->loop(function () use ($wizard, &$options) {
             $newAnswer = $wizard->choice($this->text, $options);
 
-            $answers[] = $newAnswer;
-
             $this->removeChoiceFromOptions($newAnswer, $options);
-        } while ($newAnswer !== $this->endKeyword && count($options) > 0);
 
-        if (!$this->retainEndKeywordInAnswers) {
+            return $newAnswer;
+        });
+
+        if ($this->shouldRemoveEndKeyword($answers)) {
             array_pop($answers);
         }
 
