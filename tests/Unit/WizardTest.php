@@ -335,25 +335,25 @@ class WizardTest extends TestCase
         return [
             [
                 function($answer) {
-                    return $answer !== 'stop';
+                    return $answer === 'stop';
                 }, ['go on', 'keep running', 'continue', 'stop'],
             ],
             [
                 function($answer) {
                     if ($answer === null) {
-                        return true;
+                        return false;
                     }
 
-                    return $answer < 20;
+                    return $answer > 20;
                 }, [1, 7, 4, 12, 19, 55],
             ],
             [
                 function($answer) {
                     if ($answer === null) {
-                        return true;
+                        return false;
                     }
 
-                    return is_string($answer);
+                    return !is_string($answer);
                 }, ['go on', 'keep it up', 'this is the last time', false],
             ]
         ];
