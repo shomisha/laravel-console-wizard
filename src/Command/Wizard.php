@@ -3,8 +3,11 @@
 namespace Shomisha\LaravelConsoleWizard\Command;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Shomisha\LaravelConsoleWizard\Contracts\Step;
+use Shomisha\LaravelConsoleWizard\Contracts\ValidatesWizard;
+use Shomisha\LaravelConsoleWizard\Contracts\ValidatesWizardSteps;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 
@@ -52,6 +55,10 @@ abstract class Wizard extends Command implements Step
 
         $this->take($this);
 
+        if ($this->shouldValidateWizard()) {
+            $this->validateWizard();
+        }
+
         $this->completed();
     }
 
@@ -65,6 +72,10 @@ abstract class Wizard extends Command implements Step
             $this->taking($step, $name);
 
             $answer = $step->take($this);
+
+            if ($this->shouldValidateStep($name)) {
+                $this->validateStep($name, $answer);
+            }
 
             $this->answered($step, $name, $answer);
         } while ($this->steps->isNotEmpty());
@@ -203,9 +214,43 @@ abstract class Wizard extends Command implements Step
         $this->followup = collect([]);
     }
 
+    private function shouldValidateWizard()
+    {
+        return $this instanceof ValidatesWizard;
+    }
+
+    private function validateWizard()
+    {
+        return $this->validate($this->answers->toArray(), $this->getRules());
+    }
+
+    private function shouldValidateStep(string $name)
+    {
+        return $this instanceof ValidatesWizardSteps
+            && count(array_intersect([$name, '*'], $this->stepsToValidate())) > 0;
+    }
+
+    private function validateStep(string $name, $answer)
+    {
+        return $this->validate(
+            $this->answers->merge([$name => $answer])->toArray(),
+            $this->getRules()
+        );
+    }
+
+    private function validate(array $data, array $rules)
+    {
+        return Validator::make($data, $rules)->validate();
+    }
+
     public function refill()
     {
         $this->initializeWizard();
+    }
+
+    public function stepsToValidate(): array
+    {
+        return ['*'];
     }
 
     abstract function getSteps(): array;
