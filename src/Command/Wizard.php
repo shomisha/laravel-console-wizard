@@ -195,11 +195,6 @@ abstract class Wizard extends Command implements Step
         $this->answers->put($name, $answer);
     }
 
-    private function getAnswer(string $name)
-    {
-        return $this->answers->get($name);
-    }
-
     private function moveStepToTaken(string $name, Step $step)
     {
         $this->taken->put($name, $step);
