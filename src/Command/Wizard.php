@@ -5,6 +5,7 @@ namespace Shomisha\LaravelConsoleWizard\Command;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Shomisha\LaravelConsoleWizard\Contracts\Step;
 use Shomisha\LaravelConsoleWizard\Contracts\ValidatesWizard;
 use Shomisha\LaravelConsoleWizard\Contracts\ValidatesWizardSteps;
@@ -74,7 +75,15 @@ abstract class Wizard extends Command implements Step
             $answer = $step->take($this);
 
             if ($this->shouldValidateStep($name)) {
-                $this->validateStep($name, $answer);
+                try {
+                    $this->validateStep($name, $answer);
+                } catch (ValidationException $e) {
+                    if (!$this->hasFailedValidationHandler($name)) {
+                        throw $e;
+                    }
+
+                    $this->runFailedValidationHandler($name, $e, $answer);
+                }
             }
 
             $this->answered($step, $name, $answer);
@@ -236,6 +245,21 @@ abstract class Wizard extends Command implements Step
     private function validate(array $data, array $rules)
     {
         return Validator::make($data, $rules)->validate();
+    }
+
+    private function hasFailedValidationHandler(string $name)
+    {
+        return method_exists($this, $this->guessValidationFailedHandlerName($name));
+    }
+
+    private function runFailedValidationHandler(string $name, ValidationException $exception, $answer)
+    {
+        $this->{$this->guessValidationFailedHandlerName($name)}($answer, $exception->errors()[$name]);
+    }
+
+    private function guessValidationFailedHandlerName(string $name)
+    {
+        return sprintf("onInvalid%s", Str::studly($name));
     }
 
     public function refill()
