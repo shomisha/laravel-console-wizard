@@ -227,14 +227,14 @@ abstract class Wizard extends Command implements Step
     private function shouldValidateStep(string $name)
     {
         return $this instanceof ValidatesWizardSteps
-            && count(array_intersect([$name, '*'], $this->stepsToValidate())) > 0;
+            && array_key_exists($name, $this->getRules());
     }
 
     private function validateStep(string $name, $answer)
     {
         return $this->validate(
-            $this->answers->merge([$name => $answer])->toArray(),
-            $this->getRules()
+            [$name => $answer],
+            [$name => $this->getRules()[$name]]
         );
     }
 
@@ -246,11 +246,6 @@ abstract class Wizard extends Command implements Step
     public function refill()
     {
         $this->initializeWizard();
-    }
-
-    public function stepsToValidate(): array
-    {
-        return ['*'];
     }
 
     abstract function getSteps(): array;
