@@ -57,7 +57,11 @@ abstract class Wizard extends Command implements Step
         $this->take($this);
 
         if ($this->shouldValidateWizard()) {
-            $this->validateWizard();
+            try {
+                $this->validateWizard();
+            } catch (ValidationException $e) {
+                $this->onWizardInvalid($e->errors());
+            }
         }
 
         $this->completed();
