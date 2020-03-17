@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 use Shomisha\LaravelConsoleWizard\Contracts\Step;
 use Shomisha\LaravelConsoleWizard\Contracts\ValidatesWizard;
 use Shomisha\LaravelConsoleWizard\Contracts\ValidatesWizardSteps;
+use Shomisha\LaravelConsoleWizard\Exception\AbortWizardException;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 
@@ -74,23 +75,27 @@ abstract class Wizard extends Command implements Step
             /** @var \Shomisha\LaravelConsoleWizard\Contracts\Step $step */
             $step = $this->steps->shift();
 
-            $this->taking($step, $name);
+            try {
+                $this->taking($step, $name);
 
-            $answer = $step->take($this);
+                $answer = $step->take($this);
 
-            if ($this->shouldValidateStep($name)) {
-                try {
-                    $this->validateStep($name, $answer);
-                } catch (ValidationException $e) {
-                    if (!$this->hasFailedValidationHandler($name)) {
-                        throw $e;
+                if ($this->shouldValidateStep($name)) {
+                    try {
+                        $this->validateStep($name, $answer);
+                    } catch (ValidationException $e) {
+                        if (!$this->hasFailedValidationHandler($name)) {
+                            throw $e;
+                        }
+
+                        $this->runFailedValidationHandler($name, $e, $answer);
                     }
-
-                    $this->runFailedValidationHandler($name, $e, $answer);
                 }
-            }
 
-            $this->answered($step, $name, $answer);
+                $this->answered($step, $name, $answer);
+            } catch (AbortWizardException $e) {
+                $this->abortWizard($e->getUserMessage());
+            }
         } while ($this->steps->isNotEmpty());
 
         return $this->answers->toArray();
@@ -131,6 +136,19 @@ abstract class Wizard extends Command implements Step
         if ($step !== null) {
             $this->skipped->put($name, $step);
         }
+    }
+
+    final protected function abort(string $message = null)
+    {
+        throw new AbortWizardException($message);
+    }
+
+    private function abortWizard(string $message = null) {
+        if ($message) {
+            $this->error($message);
+        }
+
+        exit(1);
     }
 
     private function initializeSteps()
