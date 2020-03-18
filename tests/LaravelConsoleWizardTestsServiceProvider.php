@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\StepValidationTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
+use Shomisha\LaravelConsoleWizard\Test\TestWizards\WizardValidationTestWizard;
 
 class LaravelConsoleWizardTestsServiceProvider extends ServiceProvider
 {
@@ -20,6 +21,7 @@ class LaravelConsoleWizardTestsServiceProvider extends ServiceProvider
             BaseTestWizard::class,
             SubwizardTestWizard::class,
             StepValidationTestWizard::class,
+            WizardValidationTestWizard::class,
         );
     }
 }
