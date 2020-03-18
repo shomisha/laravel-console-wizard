@@ -12,6 +12,7 @@ use Shomisha\LaravelConsoleWizard\Test\TestCase;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\StepValidationTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
+use Shomisha\LaravelConsoleWizard\Test\TestWizards\WizardValidationTestWizard;
 
 class WizardTest extends TestCase
 {
@@ -213,6 +214,20 @@ class WizardTest extends TestCase
             ->expectsQuestion('What is your name?', 'Misa')
             ->expectsQuestion('How old are you?', 13)
             ->expectsQuestion('What is your favourite colour?', 'magenta');
+    }
+
+    /** @test */
+    public function wizard_can_validate_answers_on_a_complete_wizard_basis()
+    {
+        $mock = $this->partiallyMockWizard(WizardValidationTestWizard::class, ['onWizardInvalid']);
+        $expectation = $mock->shouldReceive('onWizardInvalid')->once();
+
+        $this->artisan('console-wizard-test:wizard-validation')
+            ->expectsQuestion("What is your name?", 'Misa')
+            ->expectsQuestion("What is your favourite band?", 'Invalid answer')
+            ->expectsQuestion("Which country do you come from?", "Another invalid answer");
+
+        $expectation->verify();
     }
 
     /** @test */
