@@ -3,12 +3,14 @@
 namespace Shomisha\LaravelConsoleWizard\Test\Unit;
 
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 use Shomisha\LaravelConsoleWizard\Steps\ChoiceStep;
 use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
+use Shomisha\LaravelConsoleWizard\Test\TestWizards\StepValidationTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
 
 class WizardTest extends TestCase
@@ -180,6 +182,37 @@ class WizardTest extends TestCase
                 'marital-legality' => 'single',
             ],
         ], $answers->toArray());
+    }
+
+    /** @test */
+    public function wizard_can_validate_answers_on_a_per_step_basis()
+    {
+        $mock = $this->partiallyMockWizard(StepValidationTestWizard::class, ['onInvalidAge', 'onInvalidFavouriteColour']);
+        $invalidAgeHandlerExpectation = $mock->shouldReceive('onInvalidAge');
+        $invalidColourHandlerExpectation = $mock->shouldReceive('onInvalidFavouriteColour');
+
+
+        $this->artisan('console-wizard-test:step-validation')
+            ->expectsQuestion('What is your name?', 'Misa')
+            ->expectsQuestion('How old are you?', 13)
+            ->expectsQuestion('What is your favourite colour?', 'pink');
+
+
+        $invalidAgeHandlerExpectation->verify();
+        $invalidColourHandlerExpectation->verify();
+    }
+
+    /** @test */
+    public function wizard_will_throw_a_validation_exception_if_a_validation_handler_is_missing()
+    {
+        $mock = $this->partiallyMockWizard(StepValidationTestWizard::class, ['onInvalidAge']);
+        $mock->shouldReceive('onInvalidAge');
+        $this->expectException(ValidationException::class);
+
+        $this->artisan('console-wizard-test:step-validation')
+            ->expectsQuestion('What is your name?', 'Misa')
+            ->expectsQuestion('How old are you?', 13)
+            ->expectsQuestion('What is your favourite colour?', 'magenta');
     }
 
     /** @test */
