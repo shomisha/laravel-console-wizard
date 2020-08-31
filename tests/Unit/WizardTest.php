@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 use Shomisha\LaravelConsoleWizard\Steps\ChoiceStep;
+use Shomisha\LaravelConsoleWizard\Steps\OneTimeWizard;
 use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
@@ -13,6 +14,7 @@ use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\StepValidationTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\WizardValidationTestWizard;
+use Shomisha\LaravelConsoleWizard\Test\TestWizards\WizardWithOneTimeSubwizard;
 
 class WizardTest extends TestCase
 {
@@ -183,6 +185,34 @@ class WizardTest extends TestCase
                 'marital-legality' => 'single',
             ],
         ], $answers->toArray());
+    }
+
+    /** @test */
+    public function wizard_can_use_one_time_wizard_as_subwizard()
+    {
+        $wizard = $this->loadWizard(WizardWithOneTimeSubwizard::class);
+
+        $this->artisan('console-wizard-test:one-time-subwizard')
+            ->expectsQuestion('Answer the first step', 'First answer')
+            ->expectsQuestion('Answer the second step', 'Second answer');
+
+        $answers = $this->answers->getValue($wizard);
+        $this->assertEquals([
+            'one-time-subwizard' => [
+                'first-question' => 'First answer',
+                'second-question' => 'Second answer',
+            ]
+        ], $answers->toArray());
+    }
+
+    /** @test */
+    public function one_time_wizards_completed_method_cannot_be_invoked()
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $wizard = new OneTimeWizard([]);
+
+        $wizard->completed();
     }
 
     /** @test */

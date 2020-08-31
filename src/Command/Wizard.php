@@ -143,6 +143,20 @@ abstract class Wizard extends Command implements Step
         throw new AbortWizardException($message);
     }
 
+    final protected function assertStepsAreValid(array $steps)
+    {
+        foreach ($steps as $step) {
+            if (! ($step instanceof Step)) {
+                $message = sprintf(
+                    "%s does not implement the %s interface",
+                    get_class($step),
+                    Step::class
+                );
+                throw new InvalidStepException($message);
+            }
+        }
+    }
+
     private function abortWizard(string $message = null) {
         if ($message) {
             $this->error($message);
@@ -165,20 +179,6 @@ abstract class Wizard extends Command implements Step
     private function initializeAnswers()
     {
         $this->answers = collect([]);
-    }
-
-    private function assertStepsAreValid(array $steps)
-    {
-        foreach ($steps as $step) {
-            if (! ($step instanceof Step)) {
-                $message = sprintf(
-                    "%s does not implement the %s interface",
-                    get_class($step),
-                    Step::class
-                );
-                throw new InvalidStepException($message);
-            }
-        }
     }
 
     private function taking(Step $step, string $name)
