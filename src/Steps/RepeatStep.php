@@ -17,6 +17,9 @@ class RepeatStep implements Step
     /** @var \Shomisha\LaravelConsoleWizard\Contracts\Step */
     private $step;
 
+    /** @var bool  */
+    private $excludeLast = false;
+
     public function __construct(Step $step)
     {
         $this->step = $step;
@@ -43,6 +46,10 @@ class RepeatStep implements Step
             if ($this->shouldRefillStep()) {
                 $this->refillStep();
             }
+        }
+
+        if ($this->excludeLast) {
+            array_pop($answers);
         }
 
         return $answers;
@@ -75,6 +82,23 @@ class RepeatStep implements Step
 
             return true;
         };
+
+        return $this;
+    }
+
+    public function withLastAnswer()
+    {
+        return $this->setExcludeLast(false);
+    }
+
+    public function withoutLastAnswer()
+    {
+        return $this->setExcludeLast(true);
+    }
+
+    public function setExcludeLast(bool $excludeLast)
+    {
+        $this->excludeLast = $excludeLast;
 
         return $this;
     }

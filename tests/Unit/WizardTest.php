@@ -454,6 +454,28 @@ class WizardTest extends TestCase
     }
 
     /** @test */
+    public function repeated_step_can_exclude_the_last_answer()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'repeated' => tap(new RepeatStep(new TextStep("Gimme 5 or I shall never stop")))->untilAnswerIs(5)->withoutLastAnswer(),
+        ]);
+
+        $this->artisan('console-wizard-test:base')
+             ->expectsQuestion("Gimme 5 or I shall never stop", 3)
+             ->expectsQuestion("Gimme 5 or I shall never stop", 2)
+             ->expectsQuestion("Gimme 5 or I shall never stop", 7)
+             ->expectsQuestion("Gimme 5 or I shall never stop", "You can't have 5")
+             ->expectsQuestion("Gimme 5 or I shall never stop", 5);
+
+        $answers = $mock->getAnswers();
+        $this->assertEquals([
+            3, 2, 7, "You can't have 5",
+        ], $answers->get('repeated'));
+    }
+
+    /** @test */
     public function wizard_will_throw_an_exception_if_a_repeated_question_is_not_properly_initialized()
     {
         $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);

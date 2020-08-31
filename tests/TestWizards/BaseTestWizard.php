@@ -74,6 +74,11 @@ class BaseTestWizard extends Wizard
         return $answer;
     }
 
+    public function getAnswers()
+    {
+        return $this->answers;
+    }
+
     function completed()
     {
         return $this->answers;
