@@ -8,6 +8,9 @@ use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 
 class RepeatStep implements Step
 {
+    /** @var \Shomisha\LaravelConsoleWizard\Command\Wizard */
+    private $wizard;
+
     /** @var int */
     private $counter = 0;
 
@@ -33,11 +36,13 @@ class RepeatStep implements Step
             );
         }
 
+        $this->wizard = $wizard;
+
         $answers = [];
         $answer = null;
 
         while (call_user_func($this->callback, $answer)) {
-            $answer = $this->step->take($wizard);
+            $answer = $this->step->take($this->wizard);
 
             $answers[] = $answer;
 
@@ -67,6 +72,19 @@ class RepeatStep implements Step
         return $this->until(function ($actualAnswer) use ($answer) {
             return $actualAnswer === $answer;
         }, $maxRepetitions);
+    }
+
+    public function withRepeatPrompt(string $question, bool $askOnFirstRun = false)
+    {
+        $this->callback = function ($answer) use ($question, $askOnFirstRun) {
+            if ($this->isFirstRun() && !$askOnFirstRun) {
+                return true;
+            }
+
+            return (new ConfirmStep($question))->take($this->wizard);
+        };
+
+        return $this;
     }
 
     public function until(callable $callback, int $maxRepetitions = null)
@@ -116,5 +134,10 @@ class RepeatStep implements Step
     private function refillStep()
     {
         return $this->step->refill();
+    }
+
+    private function isFirstRun()
+    {
+        return $this->counter === 0;
     }
 }

@@ -427,6 +427,57 @@ class WizardTest extends TestCase
     }
 
     /** @test */
+    public function wizard_can_repeat_a_steps_as_long_as_the_user_requests_so()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->andReturn([
+            'repeated' => tap(new RepeatStep(new TextStep('Repeat me')))->withRepeatPrompt('Repeat me again?'),
+        ]);
+
+
+        $this->artisan('console-wizard-test:base')
+            ->expectsQuestion('Repeat me', 'I will')
+            ->expectsConfirmation('Repeat me again?', 'yes')
+            ->expectsQuestion('Repeat me', 'Okay')
+            ->expectsConfirmation('Repeat me again?', 'yes')
+            ->expectsQuestion('Repeat me', 'Once more')
+            ->expectsConfirmation('Repeat me again?', 'yes')
+            ->expectsQuestion('Repeat me', 'No more')
+            ->expectsConfirmation('Repeat me again?', 'no');
+
+        $this->assertEquals([
+            'I will', 'Okay', 'Once more', 'No more'
+        ], $mock->getAnswers()->get('repeated'));
+    }
+
+    /** @test */
+    public function wizard_can_prompt_the_user_before_the_first_repetition()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->andReturn([
+            'repeated' => tap(new RepeatStep(new TextStep('Repeat me')))->withRepeatPrompt('Repeat me again?', true),
+        ]);
+
+
+        $this->artisan('console-wizard-test:base')
+            ->expectsConfirmation('Repeat me again?', 'yes')
+             ->expectsQuestion('Repeat me', 'I will')
+             ->expectsConfirmation('Repeat me again?', 'yes')
+             ->expectsQuestion('Repeat me', 'Okay')
+             ->expectsConfirmation('Repeat me again?', 'yes')
+             ->expectsQuestion('Repeat me', 'Once more')
+             ->expectsConfirmation('Repeat me again?', 'yes')
+             ->expectsQuestion('Repeat me', 'No more')
+             ->expectsConfirmation('Repeat me again?', 'no');
+
+        $this->assertEquals([
+            'I will', 'Okay', 'Once more', 'No more'
+        ], $mock->getAnswers()->get('repeated'));
+    }
+
+    /** @test */
     public function repeated_step_answers_will_be_returned_as_an_array()
     {
         $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
