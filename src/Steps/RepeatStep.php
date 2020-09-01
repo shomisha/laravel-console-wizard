@@ -70,21 +70,23 @@ class RepeatStep implements Step
     public function untilAnswerIs($answer, int $maxRepetitions = null)
     {
         return $this->until(function ($actualAnswer) use ($answer) {
+            if ($this->isFirstRun()) {
+                return false;
+            }
+
             return $actualAnswer === $answer;
         }, $maxRepetitions);
     }
 
     public function withRepeatPrompt(string $question, bool $askOnFirstRun = false)
     {
-        $this->callback = function ($answer) use ($question, $askOnFirstRun) {
+        return $this->until(function ($answer) use ($question, $askOnFirstRun) {
             if ($this->isFirstRun() && !$askOnFirstRun) {
-                return true;
+                return false;
             }
 
-            return (new ConfirmStep($question))->take($this->wizard);
-        };
-
-        return $this;
+            return !(new ConfirmStep($question))->take($this->wizard);
+        });
     }
 
     public function until(callable $callback, int $maxRepetitions = null)
