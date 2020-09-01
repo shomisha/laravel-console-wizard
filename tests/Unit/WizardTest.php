@@ -492,7 +492,7 @@ class WizardTest extends TestCase
 
 
         $this->artisan('console-wizard-test:base')
-            ->expectsConfirmation('Repeat me again?', 'yes')
+             ->expectsConfirmation('Repeat me again?', 'yes')
              ->expectsQuestion('Repeat me', 'I will')
              ->expectsConfirmation('Repeat me again?', 'yes')
              ->expectsQuestion('Repeat me', 'Okay')
