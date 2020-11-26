@@ -61,4 +61,4 @@ shomisha:laravel-console-wizard shomisha$ php artisan wizard:introduction
 This is Misa and he is 25 years old.
 ```
 
-Take a look at our [wiki pages](https://github.com/weareneopix/laravel-model-translation/wiki) for more instructions and other Wizard features.
+Take a look at our [wiki pages](https://github.com/shomisha/laravel-console-wizard/wiki) for more instructions and other Wizard features.
