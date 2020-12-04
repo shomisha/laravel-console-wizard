@@ -70,7 +70,7 @@ abstract class Wizard extends Command implements Step
 
     final public function take(Wizard $wizard)
     {
-        do {
+        while ($this->steps->isNotEmpty()) {
             $name = $this->steps->keys()->first();
             /** @var \Shomisha\LaravelConsoleWizard\Contracts\Step $step */
             $step = $this->steps->shift();
@@ -96,7 +96,7 @@ abstract class Wizard extends Command implements Step
             } catch (AbortWizardException $e) {
                 $this->abortWizard($e->getUserMessage());
             }
-        } while ($this->steps->isNotEmpty());
+        }
 
         return $this->answers->toArray();
     }
