@@ -3,17 +3,19 @@
 namespace Shomisha\LaravelConsoleWizard\Command\Generators;
 
 use Shomisha\LaravelConsoleWizard\Command\Generators\Subwizards\StepSubwizard;
-use Shomisha\LaravelConsoleWizard\Command\Wizard;
+use Shomisha\LaravelConsoleWizard\Command\GeneratorWizard;
+use Shomisha\LaravelConsoleWizard\Contracts\Step;
+use Shomisha\LaravelConsoleWizard\DataTransfer\WizardSpecification;
 use Shomisha\LaravelConsoleWizard\Steps\TextStep;
+use Shomisha\LaravelConsoleWizard\Templates\WizardTemplate;
 
-class GenerateWizardWizard extends Wizard
+class GenerateWizardWizard extends GeneratorWizard
 {
     protected $signature = 'wizard:generate';
 
     function getSteps(): array
     {
         return [
-            'name'              => new TextStep("Enter the class name for your wizard"),
             'signature'         => new TextStep("Enter the signature for your wizard"),
             'description'       => new TextStep("Enter the description for your wizard"),
             'steps'             => $this->repeat(
@@ -22,8 +24,22 @@ class GenerateWizardWizard extends Wizard
         ];
     }
 
-    function completed()
+    protected function getNameStep(): Step
     {
-        dd($this->answers);
+        return new TextStep("Enter the class name for your wizard");
+    }
+
+    protected function generateTarget(): string
+    {
+        $specification = WizardSpecification::fromArray($this->answers->all())
+                                            ->setName($this->getClassShortName())
+                                            ->setNamespace($this->getClassNamespace());
+
+        return WizardTemplate::bySpecification($specification)->print();
+    }
+
+    protected function getDefaultNamespace($rootNamespace)
+    {
+        return $rootNamespace . "\Console\Command";
     }
 }
