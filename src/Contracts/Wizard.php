@@ -2,7 +2,6 @@
 
 namespace Shomisha\LaravelConsoleWizard\Contracts;
 
-interface Step
+interface Wizard
 {
-    public function take(Wizard $wizard);
 }
