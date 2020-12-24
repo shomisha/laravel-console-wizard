@@ -34,6 +34,8 @@ class StepSubwizard extends Subwizard
             'name' => new TextStep("Enter step name"),
             'question' => new TextStep("Enter step question"),
             'type' => new ChoiceStep("Choose step type", array_keys($this->stepTypes)),
+            'has_taking_modifier' => new ConfirmStep("Do you want a 'taking' modifier method for this step?"),
+            'has_answered_modifier' => new ConfirmStep("Do you want an 'answered' modifier method for this step?"),
         ];
     }
 

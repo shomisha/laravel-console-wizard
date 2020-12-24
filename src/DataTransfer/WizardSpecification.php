@@ -2,44 +2,62 @@
 
 namespace Shomisha\LaravelConsoleWizard\DataTransfer;
 
+use Shomisha\LaravelConsoleWizard\Command\GeneratorWizard;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidClassSpecificationException;
 
-class WizardSpecification
+class WizardSpecification extends Specification
 {
-    const KEY_CLASS_NAME = 'name';
+    const KEY_NAMESPACE = 'namespace';
+    const KEY_CLASS_NAME = GeneratorWizard::NAME_STEP_NAME;
     const KEY_SIGNATURE = 'signature';
     const KEY_DESCRIPTION = 'description';
 
-    private $specification;
+    private $stepSpecifications;
 
     public function __construct(array $specification)
     {
-        $this->assertSpecificationIsValid($specification);
+        parent::__construct($specification);
 
-        $this->specification = $specification;
-    }
-
-    public static function fromArray(array $specification): self
-    {
-        return new self($specification);
+        $this->initializeSteps($this->extract('steps'));
     }
 
     public function getName(): string
     {
-        return $this->specification[self::KEY_CLASS_NAME];
+        return $this->extract(self::KEY_CLASS_NAME);
+    }
+
+    public function setName(string $name): self
+    {
+        return $this->place(self::KEY_CLASS_NAME, $name);
     }
 
     public function getSignature(): string
     {
-        return $this->specification[self::KEY_SIGNATURE];
+        return $this->extract(self::KEY_SIGNATURE);
     }
 
     public function getDescription(): ?string
     {
-        return $this->specification[self::KEY_DESCRIPTION] ?? null;
+        return $this->extract(self::KEY_DESCRIPTION);
     }
 
-    private function assertSpecificationIsValid(array $specification): void
+    /** @return \Shomisha\LaravelConsoleWizard\DataTransfer\StepSpecification[] */
+    public function getSteps(): array
+    {
+        return $this->stepSpecifications;
+    }
+
+    public function getNamespace(): ?string
+    {
+        return $this->extract(self::KEY_NAMESPACE);
+    }
+
+    public function setNamespace(?string $namespace): self
+    {
+        return $this->place(self::KEY_NAMESPACE, $namespace);
+    }
+
+    protected function assertSpecificationIsValid(array $specification): void
     {
         if (!array_key_exists(self::KEY_CLASS_NAME, $specification)) {
             InvalidClassSpecificationException::missingName();
@@ -48,5 +66,16 @@ class WizardSpecification
         if (!array_key_exists(self::KEY_SIGNATURE, $specification)) {
             InvalidClassSpecificationException::missingSignature();
         }
+    }
+
+    private function initializeSteps(array $steps): void
+    {
+        $this->stepSpecifications = collect($steps)->mapWithKeys(function (array $step) {
+            $specification = StepSpecification::fromArray($step);
+
+            return [
+                $specification->getName() => $specification
+            ];
+        })->toArray();
     }
 }
