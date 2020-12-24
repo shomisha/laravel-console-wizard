@@ -2,7 +2,7 @@
 
 namespace Shomisha\LaravelConsoleWizard\Steps;
 
-use Shomisha\LaravelConsoleWizard\Command\Wizard;
+use Shomisha\LaravelConsoleWizard\Contracts\Wizard;
 
 class TextStep extends BaseStep
 {

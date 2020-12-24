@@ -2,8 +2,8 @@
 
 namespace Shomisha\LaravelConsoleWizard\Steps;
 
-use Shomisha\LaravelConsoleWizard\Command\Wizard;
 use Shomisha\LaravelConsoleWizard\Contracts\Step;
+use Shomisha\LaravelConsoleWizard\Contracts\Wizard;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 
 class RepeatStep implements Step
