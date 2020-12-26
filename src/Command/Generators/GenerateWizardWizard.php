@@ -13,6 +13,8 @@ class GenerateWizardWizard extends GeneratorWizard
 {
     protected $signature = 'wizard:generate';
 
+    protected $type = 'Wizard';
+
     function getSteps(): array
     {
         return [
