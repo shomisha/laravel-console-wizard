@@ -27,7 +27,7 @@
     },
     "require-dev": {
         "orchestra/testbench": "^6.0",
-        "phpunit/phpunit": "^8.3",
+        "phpunit/phpunit": "^8.3"
     },
     "autoload": {
         "psr-4": {
@@ -37,6 +37,13 @@
     "autoload-dev": {
         "psr-4": {
             "Shomisha\\LaravelConsoleWizard\\Test\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Shomisha\\LaravelConsoleWizard\\LaravelConsoleWizardServiceProvider"
+            ]
         }
     }
 }
