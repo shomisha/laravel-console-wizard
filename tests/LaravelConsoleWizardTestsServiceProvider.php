@@ -3,6 +3,7 @@
 namespace Shomisha\LaravelConsoleWizard\Test;
 
 use Illuminate\Support\ServiceProvider;
+use Shomisha\LaravelConsoleWizard\Command\Generators\GenerateWizardWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\StepValidationTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
@@ -23,7 +24,8 @@ class LaravelConsoleWizardTestsServiceProvider extends ServiceProvider
             SubwizardTestWizard::class,
             StepValidationTestWizard::class,
             WizardValidationTestWizard::class,
-            WizardWithOneTimeSubwizard::class
+            WizardWithOneTimeSubwizard::class,
+            GenerateWizardWizard::class
         );
     }
 }
