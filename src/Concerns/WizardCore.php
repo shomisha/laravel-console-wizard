@@ -2,6 +2,7 @@
 
 namespace Shomisha\LaravelConsoleWizard\Concerns;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -15,26 +16,15 @@ use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 
 trait WizardCore
 {
-    /**
-     * @var \Illuminate\Support\Collection
-     */
-    protected $steps;
+    protected Collection $steps;
 
-    /**
-     * @var \Illuminate\Support\Collection
-     */
-    protected $taken;
+    protected Collection $taken;
 
-    /**
-     * @var \Illuminate\Support\Collection
-     */
-    protected $answers;
+    protected Collection $answers;
 
-    /** @var \Illuminate\Support\Collection */
-    protected $followup;
+    protected Collection $followup;
 
-    /** @var \Illuminate\Support\Collection */
-    protected $skipped;
+    protected Collection $skipped;
 
     protected function initializeSteps()
     {

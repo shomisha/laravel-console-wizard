@@ -8,7 +8,7 @@ class AbortWizardException extends \Exception
 {
     protected $message = "Wizard abortion initiated by client.";
 
-    private $userMessage = null;
+    private ?string $userMessage = null;
 
     public function __construct(string $userMessage = null, $code = 0, Throwable $previous = null)
     {

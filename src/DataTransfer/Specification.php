@@ -6,7 +6,7 @@ use Illuminate\Support\Arr;
 
 abstract class Specification
 {
-    private $specification;
+    private array $specification;
 
     public function __construct(array $specification)
     {

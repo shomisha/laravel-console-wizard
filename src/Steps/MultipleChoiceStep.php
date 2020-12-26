@@ -6,8 +6,7 @@ use Shomisha\LaravelConsoleWizard\Contracts\Wizard;
 
 class MultipleChoiceStep extends BaseMultipleAnswerStep
 {
-    /** @var array */
-    private $choices;
+    private array $choices;
 
     public function __construct(string $text, array $choices, array $options = [])
     {

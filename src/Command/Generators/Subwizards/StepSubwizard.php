@@ -13,7 +13,7 @@ use Shomisha\LaravelConsoleWizard\Steps\UniqueMultipleChoiceStep;
 
 class StepSubwizard extends Subwizard
 {
-    private $stepTypes = [
+    private array $stepTypes = [
         'Text step' => TextStep::class,
         'Multiple answer text step' => MultipleAnswerTextStep::class,
         'Choice step' => ChoiceStep::class,
@@ -22,7 +22,7 @@ class StepSubwizard extends Subwizard
         'Confirm step' => ConfirmStep::class,
     ];
 
-    private $stepSubwizards = [
+    private array $stepSubwizards = [
         ChoiceStep::class => MultipleChoiceOptionsSubwizard::class,
         MultipleChoiceStep::class => MultipleChoiceOptionsSubwizard::class,
         UniqueMultipleChoiceStep::class => MultipleChoiceOptionsSubwizard::class,

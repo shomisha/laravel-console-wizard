@@ -8,20 +8,15 @@ use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 
 class RepeatStep implements Step
 {
-    /** @var \Shomisha\LaravelConsoleWizard\Command\Wizard */
-    private $wizard;
+    private Wizard $wizard;
 
-    /** @var int */
-    private $counter = 0;
+    private int $counter = 0;
 
-    /** @var callable */
     private $callback = null;
 
-    /** @var \Shomisha\LaravelConsoleWizard\Contracts\Step */
-    private $step;
+    private Step $step;
 
-    /** @var bool  */
-    private $excludeLast = false;
+    private bool $excludeLast = false;
 
     public function __construct(Step $step)
     {

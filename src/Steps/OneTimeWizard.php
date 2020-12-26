@@ -6,7 +6,7 @@ use Shomisha\LaravelConsoleWizard\Command\Wizard;
 
 class OneTimeWizard extends Wizard
 {
-    private $multiValueSteps;
+    private array $multiValueSteps;
 
     public function __construct(array $steps)
     {
