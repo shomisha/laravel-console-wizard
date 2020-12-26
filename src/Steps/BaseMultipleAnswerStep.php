@@ -4,17 +4,13 @@ namespace Shomisha\LaravelConsoleWizard\Steps;
 
 abstract class BaseMultipleAnswerStep extends BaseStep
 {
-    /** @var string */
-    protected $endKeyword;
+    protected string $endKeyword;
 
-    /** @var bool */
-    protected $retainEndKeywordInAnswers;
+    protected bool $retainEndKeywordInAnswers;
 
-    /** @var int  */
-    protected $repetitions = 0;
+    protected int $repetitions = 0;
 
-    /** @var int */
-    protected $maxRepetitions;
+    protected ?int $maxRepetitions = null;
 
     public function __construct(string $text, array $options = [])
     {

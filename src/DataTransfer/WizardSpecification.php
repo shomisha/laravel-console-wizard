@@ -12,7 +12,7 @@ class WizardSpecification extends Specification
     const KEY_SIGNATURE = 'signature';
     const KEY_DESCRIPTION = 'description';
 
-    private $stepSpecifications;
+    private array $stepSpecifications;
 
     public function __construct(array $specification)
     {

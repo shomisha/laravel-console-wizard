@@ -6,7 +6,7 @@ use Shomisha\LaravelConsoleWizard\Contracts\Step;
 
 abstract class BaseStep implements Step
 {
-    protected $text;
+    protected string $text;
 
     public function __construct(string $text)
     {

@@ -6,8 +6,7 @@ use Shomisha\LaravelConsoleWizard\Contracts\Wizard;
 
 class ChoiceStep extends BaseStep
 {
-    /** @var array */
-    private $options;
+    private array $options;
 
     public function __construct(string $text, array $options)
     {
