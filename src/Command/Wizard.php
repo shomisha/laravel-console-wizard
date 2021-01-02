@@ -4,10 +4,9 @@ namespace Shomisha\LaravelConsoleWizard\Command;
 
 use Illuminate\Console\Command;
 use Shomisha\LaravelConsoleWizard\Concerns\WizardCore;
-use Shomisha\LaravelConsoleWizard\Contracts\Step;
 use Shomisha\LaravelConsoleWizard\Contracts\Wizard as WizardContract;
 
-abstract class Wizard extends Command implements Step, WizardContract
+abstract class Wizard extends Command implements WizardContract
 {
     use WizardCore;
 
@@ -22,7 +21,7 @@ abstract class Wizard extends Command implements Step, WizardContract
 
         $this->completed();
     }
-    
+
     abstract function getSteps(): array;
 
     abstract function completed();

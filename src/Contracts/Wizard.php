@@ -2,6 +2,6 @@
 
 namespace Shomisha\LaravelConsoleWizard\Contracts;
 
-interface Wizard
+interface Wizard extends Step
 {
 }
