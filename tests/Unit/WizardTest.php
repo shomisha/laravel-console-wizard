@@ -227,7 +227,7 @@ class WizardTest extends TestCase
         $this->artisan('console-wizard-test:step-validation')
             ->expectsQuestion('What is your name?', 'Misa')
             ->expectsQuestion('How old are you?', 13)
-            ->expectsQuestion('What is your favourite colour?', 'pink');
+            ->expectsQuestion('What is your favourite colour?', 'red');
 
 
         $invalidAgeHandlerExpectation->verify();
