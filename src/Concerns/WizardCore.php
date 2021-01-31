@@ -15,6 +15,7 @@ use Shomisha\LaravelConsoleWizard\Exception\AbortWizardException;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 
+/** @mixin \Shomisha\LaravelConsoleWizard\Command\Wizard */
 trait WizardCore
 {
     protected Collection $steps;
@@ -26,6 +27,8 @@ trait WizardCore
     protected Collection $followup;
 
     protected Collection $skipped;
+
+    protected bool $inheritAnswersFromArguments = false;
 
     protected function initializeSteps()
     {
@@ -46,7 +49,7 @@ trait WizardCore
             try {
                 $this->taking($step, $name);
 
-                $answer = $step->take($this);
+                $answer = $this->getStepAnswer($name, $step);
 
                 if ($this->shouldValidateStep($name)) {
                     try {
@@ -183,6 +186,21 @@ trait WizardCore
     private function guessTakingModifier(string $name)
     {
         return sprintf('taking%s', Str::studly($name));
+    }
+
+    private function getStepAnswer(string $name, Step $step)
+    {
+        if ($this->inheritAnswersFromArguments) {
+            if ($answer = $this->arguments()[$name] ?? null) {
+                return $answer;
+            }
+
+            if ($answer = $this->options()[$name] ?? null) {
+                return $answer;
+            }
+        }
+
+        return $step->take($this);
     }
 
     private function answered(Step $step, string $name, $answer)
