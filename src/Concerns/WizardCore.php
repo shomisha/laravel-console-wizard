@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Shomisha\LaravelConsoleWizard\Contracts\RepeatsInvalidSteps;
 use Shomisha\LaravelConsoleWizard\Contracts\Step;
 use Shomisha\LaravelConsoleWizard\Contracts\ValidatesWizard;
 use Shomisha\LaravelConsoleWizard\Contracts\ValidatesWizardSteps;
@@ -40,9 +41,7 @@ trait WizardCore
     final public function take(Wizard $wizard)
     {
         while ($this->steps->isNotEmpty()) {
-            $name = $this->steps->keys()->first();
-            /** @var \Shomisha\LaravelConsoleWizard\Contracts\Step $step */
-            $step = $this->steps->shift();
+            [$name, $step] = $this->getNextStep();
 
             try {
                 $this->taking($step, $name);
@@ -53,11 +52,7 @@ trait WizardCore
                     try {
                         $this->validateStep($name, $answer);
                     } catch (ValidationException $e) {
-                        if (!$this->hasFailedValidationHandler($name)) {
-                            throw $e;
-                        }
-
-                        $this->runFailedValidationHandler($name, $e, $answer);
+                        $this->handleInvalidAnswer($name, $step, $answer, $e);
                     }
                 }
 
@@ -165,6 +160,14 @@ trait WizardCore
         $this->answers = collect([]);
     }
 
+    private function getNextStep(): array
+    {
+        return [
+            $this->steps->keys()->first(),
+            $this->steps->shift(),
+        ];
+    }
+
     private function taking(Step $step, string $name)
     {
         if ($this->hasTakingModifier($name)) {
@@ -248,9 +251,31 @@ trait WizardCore
         );
     }
 
+    private function handleInvalidAnswer(string $name, Step $step, $answer, ValidationException $e): void
+    {
+        if ($this->hasFailedValidationHandler($name)) {
+            $this->runFailedValidationHandler($name, $e, $answer);
+
+            return;
+        } elseif ($this->shouldRepeatInvalidSteps()) {
+            $this->error($e->errors()[$name][0]);
+
+            $this->followUp($name, $step);
+
+            return;
+        }
+
+        throw $e;
+    }
+
     private function validate(array $data, array $rules)
     {
         return Validator::make($data, $rules)->validate();
+    }
+
+    private function shouldRepeatInvalidSteps(): bool
+    {
+        return $this instanceof RepeatsInvalidSteps;
     }
 
     private function hasFailedValidationHandler(string $name)
@@ -258,7 +283,7 @@ trait WizardCore
         return method_exists($this, $this->guessValidationFailedHandlerName($name));
     }
 
-    private function runFailedValidationHandler(string $name, ValidationException $exception, $answer)
+    private function runFailedValidationHandler(string $name, ValidationException $exception, $answer): void
     {
         $this->{$this->guessValidationFailedHandlerName($name)}($answer, $exception->errors()[$name]);
     }

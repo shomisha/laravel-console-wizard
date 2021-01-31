@@ -12,6 +12,7 @@ use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
+use Shomisha\LaravelConsoleWizard\Test\TestWizards\RepeatsStepsTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\StepValidationTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\WizardValidationTestWizard;
@@ -245,6 +246,36 @@ class WizardTest extends TestCase
             ->expectsQuestion('What is your name?', 'Misa')
             ->expectsQuestion('How old are you?', 13)
             ->expectsQuestion('What is your favourite colour?', 'magenta');
+    }
+
+    /** @test */
+    public function wizard_can_repeat_invalidly_answered_steps_automatically()
+    {
+        $this->artisan('wizard-test:repeat-invalid')
+            ->expectsQuestion("Enter age", "9")
+            ->expectsOutput("The age must be at least 10.")
+            ->expectsQuestion("Enter age", "21")
+            ->expectsOutput("The age may not be greater than 20.")
+            ->expectsQuestion("Enter age", "13")
+            ->expectsQuestion("Enter birth year", "1993")
+            ->expectsOutput("Done");
+    }
+
+    /** @test */
+    public function wizard_will_not_automatically_repeat_steps_if_they_have_handlers_defined()
+    {
+        $mock = $this->partiallyMockWizard(RepeatsStepsTestWizard::class, ['onInvalidIHaveAHandler']);
+
+        $expectation = $mock->shouldReceive('onInvalidIHaveAHandler')->andReturn(true);
+
+
+        $this->artisan("wizard-test:repeat-invalid")
+            ->expectsQuestion("Enter age", "13")
+            ->expectsQuestion("Enter birth year", "I will not")
+            ->expectsOutput("Done");
+
+
+        $expectation->verify();
     }
 
     /** @test */
