@@ -12,6 +12,7 @@ use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 use Shomisha\LaravelConsoleWizard\Steps\TextStep;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
+use Shomisha\LaravelConsoleWizard\Test\TestWizards\InheritAnswersTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\RepeatsStepsTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\StepValidationTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\SubwizardTestWizard;
@@ -158,6 +159,37 @@ class WizardTest extends TestCase
     public function wizard_will_ask_all_the_defined_steps()
     {
         $this->runBaseTestWizard();
+    }
+
+    /** @test */
+    public function wizard_can_override_steps_using_arguments()
+    {
+        $this->artisan("wizard-test:inherit-answers Misa")
+            ->expectsQuestion("Age", 26)
+            ->expectsOutput("Misa is 26 year(s) old");
+    }
+
+    /** @test */
+    public function wizard_can_override_steps_using_options()
+    {
+        $this->artisan("wizard-test:inherit-answers --age=26")
+            ->expectsQuestion("Name", "Misa")
+            ->expectsOutput("Misa is 26 year(s) old");
+    }
+
+    /** @test */
+    public function wizard_will_not_override_steps_using_arguments_if_that_feature_is_disabled()
+    {
+        $wizard = $this->loadWizard(InheritAnswersTestWizard::class);
+
+        $shouldInherit = new \ReflectionProperty(get_class($wizard), 'inheritAnswersFromArguments');
+        $shouldInherit->setAccessible(true);
+        $shouldInherit->setValue($wizard, false);
+
+        $this->artisan("wizard-test:inherit-answers Misa --age=21")
+            ->expectsQuestion("Name", "Natalija")
+            ->expectsQuestion("Age", 26)
+            ->expectsOutput("Natalija is 26 year(s) old");
     }
 
     /** @test */
