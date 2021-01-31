@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Shomisha\LaravelConsoleWizard\Exception\InvalidStepException;
 use Shomisha\LaravelConsoleWizard\Steps\ChoiceStep;
+use Shomisha\LaravelConsoleWizard\Steps\ConfirmStep;
 use Shomisha\LaravelConsoleWizard\Steps\OneTimeWizard;
 use Shomisha\LaravelConsoleWizard\Steps\RepeatStep;
 use Shomisha\LaravelConsoleWizard\Steps\TextStep;
@@ -345,6 +346,41 @@ class WizardTest extends TestCase
              ->expectsQuestion('I am the main step', 'Cool')
              ->expectsQuestion('I am added after the main step', 'Yes, you are')
              ->expectsQuestion('I am added before the main step', 'Good for you');
+    }
+
+    /** @test */
+    public function wizard_can_repeat_steps()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'repeat_me' => new TextStep("I should be repeated"),
+            'repeat-after-me' => new ConfirmStep("Should I repeat him, though?"),
+        ]);
+
+
+        $this->artisan('console-wizard-test:base')
+            ->expectsQuestion("I should be repeated", "Indeed you should")
+            ->expectsConfirmation("Should I repeat him, though?", 'yes')
+            ->expectsQuestion("I should be repeated", "And repeated you are.");
+    }
+
+    /** @test */
+    public function wizard_can_only_repeat_taken_or_skipped_tests()
+    {
+        $mock = $this->partiallyMockWizard(BaseTestWizard::class, ['getSteps']);
+
+        $mock->shouldReceive('getSteps')->once()->andReturn([
+            'repeat-after-me' => new TextStep("I really want to repeat a step"),
+            'second-step' => new TextStep("I'm just chilling here"),
+            'repeat_me' => new TextStep("Y U NO REPEAT ME"),
+        ]);
+
+
+        $this->artisan('console-wizard-test:base')
+            ->expectsQuestion("I really want to repeat a step", "But you cannot")
+            ->expectsQuestion("I'm just chilling here", "Good for you")
+            ->expectsQuestion("Y U NO REPEAT ME", "Because you're too late");
     }
 
     /** @test */

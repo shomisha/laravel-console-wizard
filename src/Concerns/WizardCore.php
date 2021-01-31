@@ -113,6 +113,17 @@ trait WizardCore
         return $this;
     }
 
+    final protected function repeatStep(string $name): ?Step
+    {
+        $step = $this->findStep($name);
+
+        if ($step !== null) {
+            $this->followUp($name, $step);
+        }
+
+        return $step;
+    }
+
     final protected function skip(string $name)
     {
         $step = $this->steps->pull($name);
@@ -255,6 +266,17 @@ trait WizardCore
     private function guessValidationFailedHandlerName(string $name)
     {
         return sprintf("onInvalid%s", Str::studly($name));
+    }
+
+    private function findStep(string $name): ?Step
+    {
+        $step = $this->taken->get($name);
+
+        if ($step === null) {
+            $step = $this->skipped->get($name);
+        }
+
+        return $step;
     }
 
     public function refill()
