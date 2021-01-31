@@ -45,6 +45,11 @@ class BaseTestWizard extends Wizard
         $this->followup('followup', new TextStep("I am a followup."));
     }
 
+    public function answeredRepeatAfterMe(Step $step, $shouldRepeat)
+    {
+        $this->repeatStep('repeat_me');
+    }
+
     public function takingMainStep()
     {
         $this->followup('pre-main-step', new TextStep('I am added before the main step'));
