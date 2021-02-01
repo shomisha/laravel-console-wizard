@@ -73,14 +73,14 @@ class RepeatStep implements Step
         }, $maxRepetitions);
     }
 
-    public function withRepeatPrompt(string $question, bool $askOnFirstRun = false)
+    public function withRepeatPrompt(string $question, bool $askOnFirstRun = false, bool $defaultAnswer = false)
     {
-        return $this->until(function ($answer) use ($question, $askOnFirstRun) {
+        return $this->until(function ($answer) use ($question, $askOnFirstRun, $defaultAnswer) {
             if ($this->isFirstRun() && !$askOnFirstRun) {
                 return false;
             }
 
-            return !(new ConfirmStep($question))->take($this->wizard);
+            return !(new ConfirmStep($question, $defaultAnswer))->take($this->wizard);
         });
     }
 
