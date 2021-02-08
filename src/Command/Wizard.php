@@ -5,6 +5,7 @@ namespace Shomisha\LaravelConsoleWizard\Command;
 use Illuminate\Console\Command;
 use Shomisha\LaravelConsoleWizard\Concerns\WizardCore;
 use Shomisha\LaravelConsoleWizard\Contracts\Wizard as WizardContract;
+use Shomisha\LaravelConsoleWizard\Exception\AbortWizardException;
 
 abstract class Wizard extends Command implements WizardContract
 {
@@ -17,7 +18,11 @@ abstract class Wizard extends Command implements WizardContract
 
     final public function handle()
     {
-        $this->handleWizard();
+        try {
+            $this->handleWizard();
+        } catch (AbortWizardException $e) {
+            return $this->abortWizard($e);
+        }
 
         $this->completed();
     }

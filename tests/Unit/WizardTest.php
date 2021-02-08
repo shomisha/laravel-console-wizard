@@ -710,4 +710,11 @@ class WizardTest extends TestCase
 
         $this->runBaseTestWizard();
     }
+
+    /** @test */
+    public function wizard_can_be_aborted()
+    {
+        $this->artisan('wizard:abort')
+            ->expectsConfirmation("Should I abort?", 'yes');
+    }
 }
