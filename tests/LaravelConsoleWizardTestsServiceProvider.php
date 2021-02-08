@@ -4,6 +4,7 @@ namespace Shomisha\LaravelConsoleWizard\Test;
 
 use Illuminate\Support\ServiceProvider;
 use Shomisha\LaravelConsoleWizard\Command\Generators\GenerateWizardWizard;
+use Shomisha\LaravelConsoleWizard\Test\TestWizards\AbortWizardTest;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\BaseTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\InheritAnswersTestWizard;
 use Shomisha\LaravelConsoleWizard\Test\TestWizards\RepeatsStepsTestWizard;
@@ -30,6 +31,7 @@ class LaravelConsoleWizardTestsServiceProvider extends ServiceProvider
             GenerateWizardWizard::class,
             RepeatsStepsTestWizard::class,
             InheritAnswersTestWizard::class,
+            AbortWizardTest::class,
         );
     }
 }

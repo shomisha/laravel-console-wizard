@@ -46,23 +46,19 @@ trait WizardCore
         while ($this->steps->isNotEmpty()) {
             [$name, $step] = $this->getNextStep();
 
-            try {
-                $this->taking($step, $name);
+            $this->taking($step, $name);
 
-                $answer = $this->getStepAnswer($name, $step);
+            $answer = $this->getStepAnswer($name, $step);
 
-                if ($this->shouldValidateStep($name)) {
-                    try {
-                        $this->validateStep($name, $answer);
-                    } catch (ValidationException $e) {
-                        $this->handleInvalidAnswer($name, $step, $answer, $e);
-                    }
+            if ($this->shouldValidateStep($name)) {
+                try {
+                    $this->validateStep($name, $answer);
+                } catch (ValidationException $e) {
+                    $this->handleInvalidAnswer($name, $step, $answer, $e);
                 }
-
-                $this->answered($step, $name, $answer);
-            } catch (AbortWizardException $e) {
-                $this->abortWizard($e->getUserMessage());
             }
+
+            $this->answered($step, $name, $answer);
         }
 
         return $this->answers->toArray();
@@ -150,12 +146,11 @@ trait WizardCore
         }
     }
 
-    private function abortWizard(string $message = null) {
-        if ($message) {
+    private function abortWizard(AbortWizardException $e): void
+    {
+        if ($message = $e->getUserMessage()) {
             $this->error($message);
         }
-
-        exit(1);
     }
 
     private function initializeAnswers()

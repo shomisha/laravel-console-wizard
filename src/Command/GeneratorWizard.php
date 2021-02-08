@@ -6,6 +6,7 @@ use Illuminate\Console\GeneratorCommand;
 use Shomisha\LaravelConsoleWizard\Concerns\WizardCore;
 use Shomisha\LaravelConsoleWizard\Contracts\Step;
 use Shomisha\LaravelConsoleWizard\Contracts\Wizard as WizardContract;
+use Shomisha\LaravelConsoleWizard\Exception\AbortWizardException;
 
 abstract class GeneratorWizard extends GeneratorCommand implements Step, WizardContract
 {
@@ -15,7 +16,11 @@ abstract class GeneratorWizard extends GeneratorCommand implements Step, WizardC
 
     public function handle()
     {
-        $this->handleWizard();
+        try {
+            $this->handleWizard();
+        } catch (AbortWizardException $e) {
+            return $this->abortWizard($e);
+        }
 
         return parent::handle();
     }
