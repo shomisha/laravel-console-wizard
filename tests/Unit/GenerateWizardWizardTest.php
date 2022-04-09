@@ -2,20 +2,27 @@
 
 namespace Shomisha\LaravelConsoleWizard\Test\Unit;
 
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Storage;
 use Shomisha\LaravelConsoleWizard\Test\TestCase;
 
 class GenerateWizardWizardTest extends TestCase
 {
-    protected function path(string $filename = ''): string
+	private Filesystem $disk;
+
+    protected function path(): string
     {
-        return base_path("/storage/framework/test/GenerateWizardWizardTest/{$filename}");
+        return base_path('app');
     }
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->app->useAppPath($this->path());
+		$this->disk = Storage::build([
+			'driver' => 'local',
+			'root' => $this->path(),
+		]);
     }
 
     protected function tearDown(): void
@@ -35,7 +42,7 @@ class GenerateWizardWizardTest extends TestCase
              ->expectsConfirmation("Do you want to add a wizard step?", 'no');
 
 
-        $generatedWizard = $this->app['files']->get($this->path('Console/Command/TestWizard.php'));
+        $generatedWizard = $this->disk->get('Console/Command/TestWizard.php');
         $this->assertIsString($generatedWizard);
 
         $this->assertStringContainsString('namespace App\Console\Command;', $generatedWizard);
@@ -45,7 +52,7 @@ class GenerateWizardWizardTest extends TestCase
         $this->assertStringContainsString("protected \$signature = 'wizard:test';", $generatedWizard);
         $this->assertStringContainsString("protected \$description = 'This is a test wizard.';", $generatedWizard);
 
-        $this->assertStringContainsString("public function getSteps() : array\n    {\n        return [];\n    }", $generatedWizard);
+        $this->assertStringContainsString("public function getSteps() : array\n    {\n        return array();\n    }\n", $generatedWizard);
         $this->assertStringContainsString("public function completed()\n    {\n        return \$this->answers->all();\n    }", $generatedWizard);
     }
 
@@ -88,7 +95,7 @@ class GenerateWizardWizardTest extends TestCase
             ->expectsConfirmation('Do you want to add a wizard step?', 'no');
 
 
-        $generatedWizard = $this->app['files']->get($this->path('Console/Command/TestWizardWithSteps.php'));
+		$generatedWizard = $this->disk->get('Console/Command/TestWizardWithSteps.php');
         $this->assertIsString($generatedWizard);
 
         $this->assertStringContainsString('namespace App\Console\Command;', $generatedWizard);
@@ -103,7 +110,7 @@ class GenerateWizardWizardTest extends TestCase
         $this->assertStringContainsString("protected \$description = 'This is a test wizard with steps.';", $generatedWizard);
 
         $this->assertStringContainsString(
-            "public function getSteps() : array\n    {\n        return ['first-step' => new TextStep('First question'), 'second-step' => new ChoiceStep('Second question', ['First option', 'Second option', 'Third option'])];\n    }",
+            "public function getSteps() : array\n    {\n        return array('first-step' => new TextStep('First question'), 'second-step' => new ChoiceStep('Second question', array('First option', 'Second option', 'Third option')));\n    }\n",
             $generatedWizard
         );
         $this->assertStringContainsString("public function takingFirstStep(Step \$step)\n    {\n    }", $generatedWizard);

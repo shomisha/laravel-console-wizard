@@ -215,7 +215,7 @@ class WizardTest extends TestCase
         $this->assertEquals([
             'name' => 'Misa',
             'legal-status' => [
-                'age-legality' => 'Yes',
+                'age-legality' => true,
                 'marital-legality' => 'single',
             ],
         ], $answers->toArray());
