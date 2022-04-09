@@ -287,7 +287,7 @@ class WizardTest extends TestCase
             ->expectsQuestion("Enter age", "9")
             ->expectsOutput("The age must be at least 10.")
             ->expectsQuestion("Enter age", "21")
-            ->expectsOutput("The age may not be greater than 20.")
+            ->expectsOutput("The age must not be greater than 20.")
             ->expectsQuestion("Enter age", "13")
             ->expectsQuestion("Enter birth year", "1993")
             ->expectsOutput("Done");
