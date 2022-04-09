@@ -2,8 +2,7 @@
 
 namespace Shomisha\LaravelConsoleWizard\Test\Unit;
 
-
-use Tests\TestCase;
+use Shomisha\LaravelConsoleWizard\Test\TestCase;
 
 class GenerateWizardWizardTest extends TestCase
 {
