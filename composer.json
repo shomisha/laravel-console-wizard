@@ -21,12 +21,12 @@
         }
     ],
     "require": {
-        "laravel/framework": "^9.0",
-        "php": "^7.4.0|^8.0",
+        "laravel/framework": "^10.0",
+        "php": "^8.1",
         "shomisha/stubless": "^1.4.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^7.0",
+        "orchestra/testbench": "^8.0",
         "phpunit/phpunit": "^9.5"
     },
     "autoload": {
