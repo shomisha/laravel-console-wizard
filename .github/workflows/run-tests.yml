@@ -1,17 +1,24 @@
 name: run-tests
 
-on: [push, pull_request]
+on:
+  - push
+  - pull_request
 
 jobs:
   run-tests:
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        php: [8.1]
-        laravel: [10.*]
+        php: [8.1, '8.2']
+        laravel: ['10.*', '11.*']
         include:
           - testbench: ^8.0
+          - testbench: ^9.0
+        exclude:
+          - laravel: 11.*
+            php: 8.1
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }}
 
