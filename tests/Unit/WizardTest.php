@@ -507,7 +507,7 @@ class WizardTest extends TestCase
              ->expectsQuestion("Gimme 5 or I shall never stop", 5);
     }
 
-    public function callbackRepetitionTests()
+    public static function callbackRepetitionTests()
     {
         return [
             [
